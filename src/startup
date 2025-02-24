@@ -1,0 +1,39 @@
+#! /bin/csh -f
+# Written by Furey.
+# With additions from Tony.
+# With additions from Denny
+
+# Set limits.
+nohup
+nice
+limit stack 1024k
+if ( -e shutdown.txt ) rm -f shutdown.txt
+
+while ( 1 )
+    # If you want to have logs in a different directory,
+    #   change the 'set logfile' line to reflect the directory name.
+    set index = 1000
+    while ( 1 )
+	set logfile = ../log/$index.log
+	if ( ! -e $logfile ) break
+	@ index++
+    end
+
+    # Record starting time
+    # date > $logfile
+
+    # Run merc.
+    # ../src/merc merc.ini >&! $logfile
+    if ( ! -e ../src/merc ) then
+      echo 'bug: no merc exits.' >>&! $logfile
+      exit 0
+    endif
+
+    ../src/merc merc.ini >>&! $logfile
+
+    if ( -e shutdown.txt ) then
+        rm -f shutdown.txt
+	exit 0
+    endif
+    sleep 360
+end
