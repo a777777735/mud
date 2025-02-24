@@ -1,0 +1,50 @@
+Name            equipment~
+Cname           檢查自己裝備~
+Function        do_equipment~
+Position        POS_DEAD
+Level           0
+Log             LOG_NORMAL
+Exact           NO
+Argument        NO
+Wizlog          NO
+Jail            YES
+CanLock         YES
+Dead            YES
+Order           NO
+Lost            YES
+Lock            NO
+Limit           NO
+Help
+語法﹕equipment
+      equipment !set <10-90>
+      equipment !info
+      equipment !search <裝備位置名稱>
+      equipment <人名>
+
+EQUIPMENT 當您按"equipment" or "eq" 的時候﹐畫面上會顯現出你身上的裝備。
+          如項鍊、護臂、手環、鞋子等等。
+
+    如果後面有參數﹐也就別人的名稱時﹐你必須是跟對方是夫妻﹐或是你是系
+統管理員。
+
+    如果第一個參數是 !set﹐則代表設定你的裝備吸收傷害的程度﹐這裡是以百分比
+為準﹐你可以設定由百分之十到九十﹐如果你想裝備不要那麼快爛﹐則可以設低一點。
+
+    如果第一個參數是 !info  則代表列出所有部位裝備的物品﹐不管有沒有都會列
+出來﹐這可以讓你知道系統裝備的種類有哪幾種。
+
+    如果第一個參數是 !search﹐後面必須加入裝備位置的名稱﹐例如﹕
+
+          eq !search neck
+
+    如此﹐系統就會隨機幫你找出適合你的項鍊類的裝備名稱給你﹐但是這得花你
+一百兩銀子﹐各位置裝備的英文對照表如下﹕
+
+  戒指類 finger   項鍊類 neck     衣服類 body     頭盔類 head
+  護膝類 legs     鞋子類 feet     手套類 hands    護臂類 arms
+  盾牌類 shield   衣袍類 about    腰帶類 waist    手腕類 wrist
+  耳環類 earring  武器類 hold     武器類 wield
+
+相關語法﹕eq in inventory score
+~
+End

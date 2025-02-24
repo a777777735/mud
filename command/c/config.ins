@@ -1,0 +1,42 @@
+Name            config~
+Cname           組態設定~
+Function        do_config~
+Position        POS_DEAD
+Level           0
+Log             LOG_NORMAL
+Exact           NO
+Argument        NO
+Wizlog          NO
+Jail            YES
+CanLock         YES
+Dead            YES
+Order           NO
+Lost            YES
+Lock            NO
+Limit           NO
+Help
+語法﹕config
+語法﹕config +< 選項 >
+語法﹕config -< 選項 >
+
+鍵入 "config" 可以顯示你目前個人的設定﹐而若是加上一些參數﹐則可以更改設定。
+正號表示開啟﹐負號表示關閉。
+
+The options are:
+
+    AUTOEXIT  你可以從您的螢幕上看到出口。
+    AUTOLOOT  您會自動拿出屍體內的東西。
+    AUTOSAC   您會自動奉獻出屍體。
+    BLANK     在提示列前有一行空白。
+    BRIEF     只會看見房間的短敘述。
+    COMBINE   將物品合併顯示。
+    PROMPT    擁有提示列。
+    TELNETGA  接受 telnet GA sequence(不清楚功用)。
+    EXACT     大部份輸出可以有玩家的中文以及英文名稱。
+    MESSAGE   攻擊時沒有完整的敘述﹐適用於網路品質不良時。
+    FLEE      若戰鬥時不小心斷線﹐系統幫你設定逃跑。
+    ANGEL     要不要守護神
+
+相關語法﹕score turn channel
+~
+End

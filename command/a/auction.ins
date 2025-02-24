@@ -1,0 +1,35 @@
+Name            auction~
+Cname           拍賣物品~
+Function        do_auction~
+Position        POS_SLEEPING
+Level           0
+Log             LOG_NORMAL
+Exact           NO
+Argument        NO
+Wizlog          YES
+Jail            NO
+CanLock         YES
+Dead            NO
+Order           NO
+Lost            NO
+Lock            NO
+Limit           YES
+Help
+語法﹕auction
+語法﹕auction  <物品> <價格>
+語法﹕auction !information        <神族指令>
+語法﹕auction !cancel             <神族指令>
+語法﹕auction !set                <神族指令>
+
+本指令是用來拍賣物品的﹐當你有物品要拍賣時﹐你可以用
+AUCTION <物品> <價格> 來拍賣﹐不過價格要比物品的價值
+要高﹐拍賣會隨著時間進行﹐期間可以讓人喊價( BET )。
+同一時間內只能有一樣物品拍賣﹐若你有物品要拍賣﹐需要
+等到拍賣結束為止。
+
+其他三個指令都只有系統管理者才可以使用﹐分別是用來
+觀看拍賣物品的資訊﹐取消拍賣和設定拍賣有關事項用。
+
+相關資訊﹕BET TICK_TIME
+~
+End

@@ -1,0 +1,39 @@
+Name            bounty~
+Cname           懸賞~
+Function        do_bounty~
+Position        POS_SLEEPING
+Level           0
+Log             LOG_NORMAL
+Exact           NO
+Argument        NO
+Wizlog          NO
+Jail            NO
+CanLock         YES
+Dead            NO
+Order           NO
+Lost            NO
+Lock            NO
+Limit           NO
+Help
+語法﹕ bounty
+語法﹕ bounty status                                             (神族指令)
+語法﹕ bounty status <號碼>                                      (神族指令)
+語法﹕ bounty go     <號碼>                                      (神族指令)
+語法﹕ bounty lock   <號碼>                                      (神族指令)
+
+    這個指令是提供玩家當獎金獵人的機會﹐玩家可以使用 bounty 這個指令
+來得知目前系統內有哪些被懸賞的人物（必定是虛擬怪物）﹐以及獎賞多少。
+
+    至於其他參數都是給管理者方便查詢或更改的﹐第一個參數若是 status
+則是查詢所有目前系統讀入的資料﹐若是後面再加入順序的話﹐則可以詳細查詢
+這一項的資料。
+
+    後面參數若是 go ﹐則代表手動觸發這個懸賞事件﹐但後面必須加入順序的
+號碼。
+
+    此外﹐還可以使用 lock 來解除或是設定鎖定懸賞事件﹐當然後面必須加入
+順序的號碼。
+
+相關資訊 ﹕kill murder wanted
+~
+End

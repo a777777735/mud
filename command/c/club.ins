@@ -1,0 +1,45 @@
+Name            club~
+Cname           幫派指令~
+Function        do_club~
+Position        POS_SLEEPING
+Level           0
+Log             LOG_NORMAL
+Exact           NO
+Argument        NO
+Wizlog          NO
+Jail            NO
+CanLock         YES
+Dead            YES
+Order           NO
+Lost            YES
+Lock            NO
+Limit           NO
+Help
+指令用法:
+club
+  用途﹕查詢所有幫派資料。
+
+club !create      [英文幫名] [中文幫名]     建立幫派[必須是聖者][需繳創幫費]
+club !countersign [英文幫名]                連署幫派[必須是聖者][需繳連署費]
+club !join        [英文幫名]                參加幫派[需繳規費]
+club !who         [英文幫名]                觀看幫派人物
+club !verify      [英文幫名]                認證幫會人物[長老以上專用]
+club !dump        [人名] [數目]             轉帳[副幫主以上專用]
+club !invite      [人名] [數目]             邀請參加幫派
+club !donate      [人名] [數目]             捐獻現金
+club !withdraw    [數目]                    提領幫派現金[長老以上專用]
+club !kick        [人名]                    驅逐幫眾[副幫主以上專用]
+club !quit        [英文幫名]                叛幫[會被追殺]
+club !dispel      [人名]                    驅逐幫眾[幫主專用][會被追殺]
+club !appoint     [人名] [vicemaster|doyen] 任命職位[幫主專用]
+club !dismiss     [人名]                    解聘職位[幫主專用]
+club !abdicate    [人名]                    幫主禪讓[幫主專用]
+club !set         name   [英文幫名]         改變英文幫名[幫主專用]
+club !set         cname  [中文幫名]         改變中文幫名[幫主專用]
+club !fordo       [英文幫名]                解散幫派[幫主專用]
+club !notelist                              檢查幫派信件
+club !read        [第幾封信]                閱讀幫派信件
+
+幫主﹕master 副幫主﹕vicemaster 長老﹕doyan 幫眾﹕member 弟子﹕follower
+~
+End
