@@ -1,0 +1,31 @@
+* 這個檔案是用來描述拍賣的物品﹐關鍵字解釋如下
+* Chance 代表開啟機率為千分之多少。
+* Limit  代表要上站人數多過幾人才會開啟。
+* 拍賣物品則以 #Sale 為開頭﹐以 End 為結尾﹐包含住的資料
+* 裡面的關鍵字如下﹕
+* Object       物品的虛擬號碼﹐必須存在
+* Visible      如果是 NO 則代表盒中物﹐若是 YES 則玩家可以知道物品內容
+* Cost         價格﹐當然要大於零
+
+Chance         40
+Limit          30
+
+#Sale
+Object          156
+Visible         YES
+Cost            10000
+End
+
+#Sale
+Object          155
+Visible         YES
+Cost            10000
+End
+
+#Sale
+Object          522
+Visible         NO
+Cost            10000
+End
+
+End

@@ -1,0 +1,301 @@
+#Question
+Title
+丘逢甲為台灣民族英雄之一﹐下列何者是台灣民族英雄﹖~
+
+Question        丘逢甲~  YES
+Question        丘逢乙~  NO
+Question        丘逢丙~  NO
+Question        丘逢丁~  NO
+End
+
+#Question
+Title
+廖添丁為台灣抗日英雄之一﹐下列何者是台灣抗日英雄﹖~
+
+Question        廖添甲~  NO
+Question        廖添乙~  NO
+Question        廖添丙~  NO
+Question        廖添丁~  YES
+End
+
+#Question
+Title
+以最簡單的思考模式來回答這個數學題目 1 + 1 = ?~
+
+Question        鐵~            NO
+Question        辣妹~          NO
+Question        中華民國萬歲~  NO
+Question        2~             YES
+End
+
+#Question
+Title
+請問本遊戲的名稱是什麼呢﹖~
+
+Question        世紀帝國(AOE)~                NO
+Question        凱蒂貓(Hello Kitty)~          NO
+Question        快快樂樂學中文~               NO
+Question        三國歪傳之降龍伏虎(mud 3838)~ YES
+End
+
+#Question
+Title
+請問英文第一個字母是哪一個呢﹖~
+
+Question        A~  YES
+Question        甲~ NO
+Question        ㄅ~ NO
+Question        1~  NO
+End
+
+#Question
+Title
+請問下列何者是會自己飛翔的鳥類﹖~
+
+Question        健康的老鷹~ YES
+Question        生日禮物~   NO
+Question        期末考~     NO
+Question        週期表~     NO
+End
+
+#Question
+Title
+請問下列何者是動物﹖~
+
+Question        無尾熊~   YES
+Question        西遊記~   NO
+Question        衛生紙~   NO
+Question        新年快樂~ NO
+End
+
+#Question
+Title
+請問三(3)角形有幾個邊﹖~
+
+Question        3~            YES
+Question        汽水~         NO
+Question        橡皮筋~       NO
+Question        美少女夢工廠~ NO
+End
+
+#Question
+Title
+請問下列何者為四隻腳的動物﹖~
+
+Question        正常的貓咪~ YES
+Question        天空~       NO
+Question        佛教~       NO
+Question        萬花樓~     NO
+End
+
+#Question
+Title
+請問本遊戲中﹐要往東走的指令是﹖~
+
+Question        east~       YES
+Question        拉肚子~     NO
+Question        國大延任~   NO
+Question        愛你一萬年~ NO
+End
+
+#Question
+Title
+請問地球地表空氣中﹐含量最多的氣體是哪一個﹖~
+
+Question        氮氣~     YES
+Question        月球~     NO
+Question        十二生肖~ NO
+Question        電視機~   NO
+End
+
+#Question
+Title
+下列何者為近代物理之父﹖~
+
+Question        愛因思坦~ YES
+Question        天秤座~   NO
+Question        競技場~   NO
+Question        保險套~   NO
+End
+
+#Question
+Title
+為了自身安全﹐騎乘機車時最好戴什麼東西﹖~
+
+Question        愛因思坦~   NO
+Question        氮氣~       NO
+Question        正常的貓咪~ NO
+Question        安全帽~     YES
+End
+
+#Question
+Title
+下列何者為中國的宗教之一﹖~
+
+Question        佛教~                         YES
+Question        無尾熊~                       NO
+Question        三國歪傳之降龍伏虎(mud 3838)~ NO
+Question        健康的老鷹~                   NO
+End
+
+#Question
+Title
+下列何者是造成搶購熱潮的寵物呢﹖~
+
+Question        凱蒂貓(Hello Kitty)~ YES
+Question        丘逢甲~              NO
+Question        廖添丁~              NO
+Question        氮氣~                NO
+End
+
+#Question
+Title
+下列何者為三國時代的著名人物﹖~
+
+Question        凱蒂貓(Hello Kitty)~ NO
+Question        趙雲~                YES
+Question        east~                NO
+Question        2~                   NO
+End
+
+#Question
+Title
+茶杯可以裝液體﹐下列何者是可以裝液體的容器﹖~
+
+Question        茶杯~     YES
+Question        諸葛亮~   NO
+Question        輔仁大學~ NO
+Question        近視~     NO
+End
+
+#Question
+Title
+再見時我們常說 bye bye﹐英文中與人說再見的話語是下列哪一個呢﹖~
+
+Question        bye bye~ YES
+Question        手錶~    NO
+Question        吉他~    NO
+Question        麻將~    NO
+End
+
+#Question
+Title
+手錶為計時工具之一﹐下列哪一個物品﹐可以拿來計時用呢﹖~
+
+Question        手錶~ YES
+Question        美國~ NO
+Question        車禍~ NO
+Question        麵包~ NO
+End
+
+#Question
+Title
+下列哪一位是三國鼎立時﹐蜀國諸葛亮主人劉備的軍師﹖~
+
+Question        諸葛亮~ YES
+Question        車禍~   NO
+Question        棒球~   NO
+Question        報紙~   NO
+End
+
+#Question
+Title
+美國是台灣的貿易伙伴﹐下列哪一個國家是台灣的貿易對象國﹖~
+
+Question        美國~    YES
+Question        烏龜~    NO
+Question        榕樹~    NO
+Question        bye bye~ NO
+End
+
+#Question
+Title
+吉他可以發出美妙的聲音﹐下列何者為樂器呢﹖~
+
+Question        吉他~    YES
+Question        近視~    NO
+Question        美國~    NO
+Question        bye bye~ NO
+End
+
+#Question
+Title
+車禍是指車子發生意外﹐那車子發生意外﹐我們習慣稱為什麼﹖~
+
+Question        車禍~   YES
+Question        棒球~   NO
+Question        諸葛亮~ NO
+Question        榕樹~   NO
+End
+
+#Question
+Title
+棒球是台灣風行的運動之一﹐請問下列何者為運動名稱呢﹖~
+
+Question        棒球~ YES
+Question        茶杯~ NO
+Question        手錶~ NO
+Question        烏龜~ NO
+End
+
+#Question
+Title
+麻將是中國固有國粹之一﹐請問下列何者為中國固有國粹之一呢﹖~
+
+Question        麻將~     YES
+Question        輔仁大學~ NO
+Question        麵包~     NO
+Question        美國~     NO
+End
+
+#Question
+Title
+每天多看報紙可以增廣見聞﹐請問閱讀下列何者是增廣見聞的方法之一﹖~
+
+Question        報紙~    YES
+Question        茶杯~    NO
+Question        烏龜~    NO
+Question        bye bye~ NO
+End
+
+#Question
+Title
+麵包是一種人們常吃的食物﹐下列何者為食物之一呢﹖~
+
+Question        車禍~    NO
+Question        bye bye~ NO
+Question        諸葛亮~  NO
+Question        麵包~    YES
+End
+
+#Question
+Title
+近視是一種文明病﹐下列何者台灣常見的文明病﹖~
+
+Question        近視~     YES
+Question        手錶~     NO
+Question        榕樹~     NO
+Question        輔仁大學~ NO
+End
+
+#Question
+Title
+烏龜是一種爬蟲類的動物﹐下列哪種是爬蟲類的動物呢﹖~
+
+Question        烏龜~ YES
+Question        吉他~ NO
+Question        榕樹~ NO
+Question        麻將~ NO
+End
+
+#Question
+Title
+榕樹是一種常見的植物﹐下列何種為植物呢﹖~
+
+Question        近視~ NO
+Question        吉他~ NO
+Question        榕樹~ YES
+Question        報紙~ NO
+End
+
+End

@@ -1,0 +1,107 @@
+* 這個檔案是用來描述系統挑出懸賞的名單﹐每一個以 #Bounty 為首﹐End 結尾
+* 每一個字首的意思如下
+
+* Mobile    代表怪物的號碼﹐必須存在。
+* Room      代表出現的房間號碼﹐-1 代表整個區域都會出現
+* Message   代表出現的敘述
+* MaxNumber 代表整個世界出現的最大數量
+* Chance    代表機率﹐千分之多少﹐每個小時計算一次
+* Type      代表型態﹐BOUNTY_GOLD 代表賞金﹐BOUNTY_FIRMAN 代表給免死金牌
+* Value     代表上述的型態所需要的數值
+* Migrate   代表是否會遷移﹐有房間號碼的僅在所屬區域遷移﹐否則是整個區域。
+* Lock      代表是否可以執行
+
+Limit           20
+
+#Bounty
+Mobile          589
+Room            501
+Message
+洛陽附近的盜賊又出來作亂了~
+Chance          50
+MaxNumber       2
+Type            BOUNTY_GOLD
+Value           5000
+Migration       10
+Lock            NO
+End
+
+#Bounty
+Mobile          590
+Room            -1
+Message
+有一隻野狗叼走了當今聖上的御內褲~
+Chance          70
+MaxNumber       3
+Type            BOUNTY_GOLD
+Value           1500
+Migration       20
+Lock            NO
+End
+
+#Bounty
+Mobile          594
+Room            -1
+Message
+一隻令人看了就吐的狗擾亂交通~
+Chance          70
+MaxNumber       3
+Type            BOUNTY_GOLD
+Value           3000
+Migration       20
+Lock            NO
+End
+
+#Bounty
+Mobile          591
+Room            -1
+Message
+有一個傢伙在世界各地不停的作亂~
+Chance          1
+MaxNumber       1
+Type            BOUNTY_FIRMAN
+Value           3
+Migration       15
+Lock            NO
+End
+
+#Bounty
+Mobile          592
+Room            -1
+Message
+有一支野貓咬走了當今皇后的御圍兜兜~
+Chance          15
+MaxNumber       2
+Type            BOUNTY_GOLD
+Value           3000
+Migration       30
+Lock            NO
+End
+
+#Bounty
+Mobile          595
+Room            -1
+Message
+董卓大聲喊道﹕「我的僕人竟敢背叛我﹗」﹐還想跑路~
+Chance          2
+MaxNumber       1
+Type            BOUNTY_FIRMAN
+Value           1
+Migration       55
+Lock            NO
+End
+
+#Bounty
+Mobile          597
+Room            -1
+Message
+女生們注意﹐出現了很弱的採花大盜~
+Chance          15
+MaxNumber       2
+Type            BOUNTY_GOLD
+Value           3000
+Migration       30
+Lock            NO
+End
+
+End

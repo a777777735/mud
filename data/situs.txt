@@ -1,0 +1,344 @@
+#Situs
+Name            light~
+Type            照明~
+EqName          <照明用具> ~
+Situs           照明~
+Location        WEAR_LIGHT
+Attack          ATTACK_LIGHT
+Chance          50
+ApplyAc         0
+Wield           No
+Wear            ITEM_WEAR_LIGHT
+ItemType        ITEM_LIGHT
+ShortDescr      照明~
+Message1        $n以$p當作照明物品。~
+Message2        你以$p當作照明物品。~
+End
+
+#Situs
+Name            head~
+Type            頭盔~
+EqName          <頭盔>     ~
+Situs           頭部~
+Location        WEAR_HEAD
+Attack          ATTACK_HEAD
+Chance          100
+ApplyAc         200
+Wield           No
+Wear            ITEM_WEAR_HEAD
+ShortDescr      頭部~
+Message1        $n把$p戴在$n的頭上。~
+Message2        你把$p戴在你的頭上。~
+End
+
+#Situs
+Name            earring~
+Type            耳環~
+EqName          <耳朵>     ~
+Situs           耳部~
+Location        WEAR_EARRING_L
+Attack          ATTACK_EARRING_1
+Associate       WEAR_EARRING_R
+Chance          20
+ApplyAc         100
+Wield           No
+Wear            ITEM_WEAR_EARRING
+Message1        $n把$p戴在$s耳朵上。~
+Message2        你把$p戴在你的耳朵上。~
+ShortDescr      左耳~
+End
+
+#Situs
+Name            earring~
+Type            耳環~
+EqName          <耳朵>     ~
+Situs           耳部~
+Location        WEAR_EARRING_R
+Attack          ATTACK_EARRING_2
+Associate       WEAR_EARRING_L
+Chance          20
+ApplyAc         100
+Wield           No
+Wear            ITEM_WEAR_EARRING
+Message1        $n把$p戴在$s耳朵上。~
+Message2        你把$p戴在你的耳朵上。~
+ShortDescr      右耳~
+End
+
+#Situs
+Name            neck~
+Type            項鍊~
+EqName          <脖子>     ~
+Situs           頸部~
+Location        WEAR_NECK_1
+Attack          ATTACK_NECK_1
+Associate       WEAR_NECK_2
+Chance          10
+ApplyAc         100
+Wield           No
+Wear            ITEM_WEAR_NECK
+ShortDescr      頸部(1)~
+Message1        $n把$p圍在$n的脖子上。~
+Message2        你把$p圍在你的脖子上。~
+End
+
+#Situs
+Name            neck~
+Type            項鍊~
+EqName          <脖子>     ~
+Situs           頸部~
+Location        WEAR_NECK_2
+Attack          ATTACK_NECK_2
+Associate       WEAR_NECK_1
+Chance          10
+ApplyAc         100
+Wield           No
+Wear            ITEM_WEAR_NECK
+ShortDescr      頸部(2)~
+Message1        $n把$p圍在$n的脖子上。~
+Message2        你把$p圍在你的脖子上。~
+End
+
+#Situs
+Name            arms~
+Type            護臂~
+EqName          <手臂>     ~
+Situs           手臂~
+Location        WEAR_ARMS
+Attack          ATTACK_ARMS
+Chance          80
+ApplyAc         100
+Wield           No
+Wear            ITEM_WEAR_ARMS
+ShortDescr      手臂~
+Message1        $n把$p裝備在$s手臂上。~
+Message2        你把$p裝備在你的手臂上。~
+End
+
+#Situs
+Name            wrist~
+Type            手腕~
+EqName          <手腕>     ~
+Situs           手部~
+Location        WEAR_WRIST_L
+Attack          ATTACK_WRIST_L
+Associate       WEAR_WRIST_R
+Chance          40
+ApplyAc         100
+Wield           No
+Wear            ITEM_WEAR_WRIST
+ShortDescr      左手腕~
+Message1        $n把$p戴到$n的左手腕上。~
+Message2        你把$p戴到你的左手腕上。~
+End
+
+#Situs
+Name            wrist~
+Type            手腕~
+EqName          <手腕>     ~
+Situs           手部~
+Location        WEAR_WRIST_R
+Attack          ATTACK_WRIST_R
+Associate       WEAR_WRIST_L
+Chance          40
+ApplyAc         100
+Wield           No
+Wear            ITEM_WEAR_WRIST
+ShortDescr      右手腕~
+Message1        $n把$p戴到$n的右手腕上。~
+Message2        你把$p戴到你的右手腕上。~
+End
+
+#Situs
+Name            wield~
+Type            武器~
+EqName          <右手>     ~
+Situs           手部~
+Location        WEAR_WIELD
+Attack          ATTACK_WIELD
+Chance          50
+ApplyAc         100
+Wield           Yes
+Wear            ITEM_WIELD
+ShortDescr      武器~
+Message1        $n手中握住$p。~
+Message2        你手中握住$p。~
+End
+
+#Situs
+Name            hold~
+Type            武器~
+EqName          <左手>     ~
+Situs           手部~
+Location        WEAR_HOLD
+Attack          ATTACK_HOLD
+Chance          50
+ApplyAc         100
+Wield           Yes
+Wear            ITEM_HOLD
+ShortDescr      手握~
+Message1        $n把$p握在$s手上。~
+Message2        你手中握住$p。~
+End
+
+#Situs
+Name            finger~
+Type            戒指~
+EqName          <戒子>     ~
+Situs           手部~
+Location        WEAR_FINGER_L
+Attack          ATTACK_FINGER_L
+Associate       WEAR_FINGER_R
+Chance          30
+ApplyAc         100
+Wield           No
+Wear            ITEM_WEAR_FINGER
+ShortDescr      左手指~
+Message1        $n戴上$p在$n的左手指上。~
+Message2        你把$p戴在左手指上。~
+End
+
+#Situs
+Name            finger~
+Type            戒指~
+EqName          <戒子>     ~
+Situs           手部~
+Location        WEAR_FINGER_R
+Attack          ATTACK_FINGER_R
+Associate       WEAR_FINGER_L
+Chance          30
+ApplyAc         100
+Wield           No
+Wear            ITEM_WEAR_FINGER
+ShortDescr      右手指~
+Message1        $n戴上$p在$n的右手指上。~
+Message2        你把$p戴在右手指上。~
+End
+
+#Situs
+Name            body~
+Type            衣服~
+EqName          <盔甲>     ~
+Situs           身體~
+Location        WEAR_BODY
+Attack          ATTACK_BODY
+Chance          150
+ApplyAc         300
+Wield           No
+Wear            ITEM_WEAR_BODY
+ShortDescr      身體~
+Message1        $n把$p穿在$n的身上。~
+Message2        你把$p穿在自己的身上。~
+End
+
+#Situs
+Name            about~
+Type            衣袍~
+EqName          <披風>     ~
+Situs           背部~
+Location        WEAR_ABOUT
+Attack          ATTACK_ABOUT
+Chance          50
+ApplyAc         200
+Wield           No
+Wear            ITEM_WEAR_ABOUT
+ShortDescr      披風~
+Message1        $n把$p穿在$n的身上。~
+Message2        你把$p穿在你的身上。~
+End
+
+#Situs
+Name            back~
+Type            背袋~
+EqName          <背袋>     ~
+Situs           背部~
+Location        WEAR_BACK
+Attack          ATTACK_BACK
+Chance          30
+ApplyAc         100
+Wield           No
+Wear            ITEM_WEAR_BACK
+ShortDescr      背部~
+Message1        $n把$p背在$s背上。~
+Message2        你把$p背在你的背上。~
+End
+
+#Situs
+Name            shield~
+Type            盾牌~
+EqName          < 盾 >     ~
+Situs           手部~
+Location        WEAR_SHIELD
+Attack          ATTACK_SHIELD
+Chance          80
+ApplyAc         100
+Wield           Yes
+Wear            ITEM_WEAR_SHIELD
+ShortDescr      護具~
+Message1        $n握住$p當作防護。~
+Message2        你握住$p當作防護。~
+End
+
+#Situs
+Name            hands~
+Type            手套~
+EqName          <手套>     ~
+Situs           手部~
+Location        WEAR_HANDS
+Attack          ATTACK_HANDS
+Chance          80
+ApplyAc         100
+Wield           No
+Wear            ITEM_WEAR_HANDS
+ShortDescr      手~
+Message1        $n把$p穿在$n的手上。~
+Message2        你把$p穿在自己的手上。~
+End
+
+#Situs
+Name            waist~
+Type            腰帶~
+EqName          <腰帶>     ~
+Situs           腰部~
+Location        WEAR_WAIST
+Attack          ATTACK_WAIST
+Chance          50
+ApplyAc         100
+Wield           No
+Wear            ITEM_WEAR_WAIST
+ShortDescr      腰部~
+Message1        $n把$p繫在$n的腰上。~
+Message2        你把$p繫在你的腰上。~
+End
+
+#Situs
+Name            legs~
+Type            護膝~
+EqName          < 腿 >     ~
+Situs           腿部~
+Location        WEAR_LEGS
+Attack          ATTACK_LEGS
+Chance          100
+ApplyAc         200
+Wield           No
+Wear            ITEM_WEAR_LEGS
+ShortDescr      腿部~
+Message1        $n把$p裝備在$s腿上。~
+Message2        你把$p裝備在你的腿上。~
+End
+
+#Situs
+Name            feet~
+Type            鞋子~
+EqName          <鞋子>     ~
+Situs           腳部~
+Location        WEAR_FEET
+Attack          ATTACK_FEET
+Chance          50
+ApplyAc         100
+Wield           No
+Wear            ITEM_WEAR_FEET
+ShortDescr      腳~
+Message1        $n把$p穿在$s腳上。~
+Message2        你把$p穿在你的腳上。~
+End

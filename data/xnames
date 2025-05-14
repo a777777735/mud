@@ -1,0 +1,83 @@
+* 系統保留字 *
+all		XNAMES_SYSTEM
+auto		XNAMES_SYSTEM
+immortal	XNAMES_SYSTEM
+imm             XNAMES_SYSTEM
+self		XNAMES_SYSTEM
+someone		XNAMES_SYSTEM
+jammy           XNAMES_SYSTEM
+shutdown        XNAMES_SYSTEM
+reboot          XNAMES_SYSTEM
+quit            XNAMES_SYSTEM
+look            XNAMES_SYSTEM
+in              XNAMES_SYSTEM
+gold            XNAMES_SYSTEM
+patricia        XNAMES_SYSTEM
+eva             XNAMES_SYSTEM
+bank            XNAMES_SYSTEM
+eq              XNAMES_SYSTEM
+linux           XNAMES_SYSTEM
+corpse          XNAMES_SYSTEM
+eqbank          XNAMES_SYSTEM
+kick            XNAMES_SYSTEM
+bbs             XNAMES_SYSTEM
+www             XNAMES_SYSTEM
+root            XNAMES_SYSTEM
+
+* 不雅字 *
+ass		XNAMES_CACONYM
+bastard		XNAMES_CACONYM
+basterd		XNAMES_CACONYM
+basturd		XNAMES_CACONYM
+bitch		XNAMES_CACONYM
+cock		XNAMES_CACONYM
+crap		XNAMES_CACONYM
+cunt		XNAMES_CACONYM
+dick		XNAMES_CACONYM
+fag		XNAMES_CACONYM
+fuck		XNAMES_CACONYM
+fucker          XNAMES_CACONYM
+fucking         XNAMES_CACONYM
+fuckyou         XNAMES_CACONYM
+ffuck           XNAMES_CACONYM
+fucko           XNAMES_CACONYM
+fuk		XNAMES_CACONYM
+kum		XNAMES_CACONYM
+lick		XNAMES_CACONYM
+orgasm		XNAMES_CACONYM
+penis		XNAMES_CACONYM
+piss		XNAMES_CACONYM
+prick		XNAMES_CACONYM
+pussy		XNAMES_CACONYM
+shit		XNAMES_CACONYM
+shity           XNAMES_CACONYM
+suck		XNAMES_CACONYM
+tit		XNAMES_CACONYM
+whore		XNAMES_CACONYM
+
+* 閒聊保留字
+@fuck           XNAMES_CHAT
+@ffuucckk       XNAMES_CHAT
+@shit           XNAMES_CHAT
+@sshhiitt       XNAMES_CHAT
+@bitch          XNAMES_CHAT
+幹你            XNAMES_CHAT
+他媽的          XNAMES_CHAT
+你媽的          XNAMES_CHAT
+妳媽的          XNAMES_CHAT
+婊              XNAMES_CHAT
+屌              XNAMES_CHAT
+操你            XNAMES_CHAT
+操他            XNAMES_CHAT
+幹我            XNAMES_CHAT
+雞巴            XNAMES_CHAT
+法客            XNAMES_CHAT
+許特            XNAMES_CHAT
+屄              XNAMES_CHAT
+入肉            XNAMES_CHAT
+肏              XNAMES_CHAT
+
+* 中文名稱保留字
+某不知名人物    XNAMES_CNAME
+
+#END

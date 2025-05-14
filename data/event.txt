@@ -1,0 +1,41 @@
+#Event
+Title           多行不義~
+Function        event_thunder~
+Keyword         thunder~
+Chance          100
+Lock            NO
+End
+
+#Event
+Title           日蝕~
+Function        event_solar_eclipse~
+Keyword         solar_eclipse~
+Lock            NO
+Chance          100
+End
+
+#Event
+Title           月蝕~
+Function        event_month_eclipse~
+Keyword         month_eclipse~
+Lock            NO
+Chance          100
+End
+
+#Event
+Title           旱災~
+Function        event_drought~
+Keyword         drought~
+Lock            NO
+Chance          100
+End
+
+#Event
+Title           蝗害~
+Function        event_locust~
+Keyword         locust~
+Lock            NO
+Chance          100
+End
+
+End
