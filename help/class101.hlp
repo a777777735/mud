@@ -1,0 +1,35 @@
+LEVEL_IMM CLASS~
+本 MUD 共有七個最終職業﹐不過在一開始的時候大家都是平民(demos)﹐
+當你的等級到達十級的時候便可以進行第一次轉職 ( rebirth ) ﹐
+可以挑選的職業共有三個﹐分別是文官(scholar)﹐武將(fighter)和道士(shaman) ﹐
+若是一直到達十五級仍未轉職的話﹐將會變成盜賊(thief)。
+
+而第二次轉職的時機在五十級開始﹐依你的職業不同﹐可以轉的職也不同﹐
+若是你是文官的話﹐可以轉為 郎中(doctor) 和 伶人(bard) 。
+若為武將的話﹐可以轉的職業為 將軍(general) 和 刺客(bravo) 。
+若是道士的話﹐可以轉為 天師(mage) 與 鑄劍師 (smith)。
+不同的職業都有不同的特性﹐你可以查閱 classes 了解。
+
+                                  ┌─ 郎中 (doctor)
+            ┌─ 文官 (scholar) ─┤   lv 50 以上
+            │   lv10 - lv 15     └─ 伶人 (bard)
+            │                         lv 50 以上
+            │                    ┌─ 將軍 (general)
+平民(demos) ┼─ 武將 (fighter) ─┤   lv 50 以上
+            │   lv10 - lv 15     └─ 刺客 (bravo)
+            │                         lv 50 以上
+            │                    ┌─ 天師 (mage)
+            ├─ 道士 (shaman)  ─┤   lv 50 以上
+            │   lv10 - lv 15     └─ 鑄劍師 (smith)
+            │                         lv 50 以上
+            └─ 盜賊 (thief) ──── (不再轉職)
+                 ( 強制轉職 )
+
+另外轉職必須給付轉職金﹐各職業所需不同﹐詳請查詢各職業。
+
+神族可以用 vocation 列出所有的職業及其相關資訊﹐
+例如號碼﹐英文名﹐中文名﹐上下限﹐所需金額等。
+
+相關資訊 : rebirth classes demos scholar fighter shaman thief
+           doctor bard general bravo mage smith vocation
+~

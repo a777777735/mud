@@ -1,0 +1,13 @@
+-1 POTION~
+.     藥水名稱                          等級      價錢   影響
+     坎水藥水(kan water potion)          10      3000   偵測隱形 6 小時
+     乾天藥水(chian sky potion)          10      3000   飛行 6 小時
+     艮山藥水(gen mount potion)          10      3000   巨人之力 6 小時
+     坤地藥水(kun earth potion)          10      3000   偵測藏匿 6 小時
+     震雷藥水(chen lightning potion)     10      3000   偵測邪惡 6 小時
+     離火藥水(li fire potion)            10      3000   偵測魔法 6 小時
+     兌澤藥水(dai swamp potion)          10      3000   潛行 6 小時
+     巽風藥水(xun wind potion)           10      3000   精靈之霧 6 小時
+
+相關資料﹕pill scroll
+~

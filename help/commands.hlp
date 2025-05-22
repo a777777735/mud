@@ -1,0 +1,18 @@
+-1 COMMANDS CMDS~
+.
+    1. 移動類指令       [1;32mhelp direction[0m
+    2. 狀態類指令       [1;32mhelp position[0m
+    3. 團隊類指令       [1;32mhelp groups[0m
+    4. 戰鬥類指令       [1;32mhelp war[0m
+    5. 技能類指令       [1;32mhelp allskill[0m
+    6. 貿易類指令       [1;32mhelp trade[0m
+    7. 物件類指令       [1;32mhelp object[0m
+    8. 溝通類指令       [1;32mhelp communication[0m
+    9. 交通類指令       [1;32mhelp travel[0m
+   10. 組態類指令       [1;32mhelp config[0m
+   11. 查詢類指令       [1;32mhelp finger[0m
+
+    所有的指令各自有完善的說明﹐以 buy 這個指令為例﹐你想知道使用方法
+可以輸入 [1;32mbuy /?[0m 或是 [1;32mbuy -?[0m﹐系統會完整地告訴你他的使用方法和時機。
+
+~

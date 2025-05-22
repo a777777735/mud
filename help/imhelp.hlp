@@ -1,0 +1,9 @@
+LEVEL_IMM IMHELP~
+. * wizhelp --> 列出所有神族指令.
+ * _system --> 列出系統內的變數.
+ * serial --> 列出某物品的序號.
+ * sefind --> 尋找某序號的物品.
+ * areanumber --> 列出區域名及號碼及相關連結.
+ * vocation --> 列出所有職業及其相關性質.
+ * xnames --> 保留字與不雅字的編輯.
+~
