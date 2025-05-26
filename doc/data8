@@ -1,0 +1,31 @@
+Envy/Merc 並不會將 idle 在 name: password: 者踢出 MUD.
+以下是一段時間內會將 idle 過久者踢出的 patch .
+在  weather_update( ) of update.c
+裡的
+    DESCRIPTOR_DATA *d;
+
+改成
+    DESCRIPTOR_DATA *d,*d_next;
+
+在 最後一個 return; 之前插入
+
+    for ( d = descriptor_list; d; d = d_next )
+    {
+        d_next = d->next;
+        if ( (d->connected != CON_PLAYING) &&
+             (d->connected != CON_AEDITOR) &&
+             (d->connected != CON_REDITOR) &&
+             (d->connected != CON_OEDITOR) &&
+             (d->connected != CON_MEDITOR) )
+            if ( --d->repeat <= -20 )
+            {
+                sprintf( log_buf, "%s idle too long !", d->host );
+                log_string( log_buf );
+                write_to_buffer( d,
+                                "閒置過久, 關閉連線狀態。\n\r", 0 );
+                close_socket ( d );
+            }
+    }
+
+如果未裝 OLC
+上面的 CON_?EDITOR 的條件式可刪除 .

@@ -1,0 +1,496 @@
+	¥H¤Wªº¤å¦r±N·|¤¶²Ð¦p¦ó¬° Merc ¼W¥[¤@­ÓÂ²³æªº QUEST ¥\¯à¡C
+	¥¦­ì©lªº·Qªk¬O§Q¥Î mob program ¨Ó´À player ³]©w¤@¨Ç mark¡C
+	ÂÇ¥Ñ¹ï mark ªºÀË¬d¨Ó¹F¨ì°O¿ý QUEST §¹¦¨«×ªº¥\¯à¡C
+	
+	­º¥ý¦b§Aªº Makefile ¤¤¥[¤W quest.c ¤º®e¦p¤U¡G
+
+#if defined(macintosh)
+#include <types.h>
+#else
+#include <sys/types.h>
+#endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <ctype.h>
+#include "merc.h"
+
+#if !defined(macintosh)
+extern	int	_filbuf		args( (FILE *) );
+#endif
+
+QMARK *qmark_free;
+
+void set_qmark( CHAR_DATA *victim, char *arg )
+{
+    QMARK *qmark;
+
+    if( qmark_free == NULL )
+        qmark = alloc_perm( sizeof(*qmark) );
+    else
+    {
+        qmark = qmark_free;
+        qmark_free = qmark_free->next;
+    }
+    qmark->next = victim->pcdata->quest_mark;
+    victim->pcdata->quest_mark = qmark;
+    smash_tilde( arg );
+    qmark->mark = str_dup( arg);
+    return;
+}
+
+bool check_qmark( CHAR_DATA *victim, char *arg )
+{
+    QMARK *qmark,*qmark_next;
+
+    for( qmark=victim->pcdata->quest_mark; qmark != NULL; qmark=qmark_next )
+    {
+        qmark_next = qmark->next;
+        if( !str_cmp( qmark->mark , arg ) )
+            return TRUE;
+    }
+    return FALSE;
+}
+
+bool del_qmark( CHAR_DATA *victim, char *arg )
+{
+    QMARK *qmark, *qmark_last, *qmark_next;
+
+    qmark = victim->pcdata->quest_mark;
+
+    if( !str_cmp( qmark->mark, arg ) )
+    {
+        free_string( qmark->mark );
+        victim->pcdata->quest_mark = qmark->next;
+        qmark->next = qmark_free;
+        qmark_free = qmark;
+    }
+    else
+    {
+        qmark_last = qmark;
+        for( qmark = qmark->next; qmark != NULL; qmark = qmark_next )
+        {
+            qmark_next = qmark->next;
+            if( !str_cmp( qmark->mark, arg ) )
+            {
+    		free_string( qmark->mark );
+    		qmark_last->next = qmark->next;
+    		qmark->next = qmark_free;
+    		qmark_free = qmark;            	
+            }
+            qmark_last = qmark;
+        }
+    }
+
+    return TRUE;
+}
+
+/* ®æ¦¡: mpaddmark <victim> <mark> */
+void do_mpadd_qmark( CHAR_DATA *ch, char *argument )
+{
+    char arg1[MAX_STRING_LENGTH];
+    char arg2[MAX_STRING_LENGTH];
+    char *pTmp;
+    CHAR_DATA *victim;
+
+    if ( !IS_NPC( ch ) )
+    {
+        send_to_char( "§A·Q·F¹À?\n\r", ch );
+	return;
+    }
+    pTmp = one_argument( argument, arg1);
+    one_argument( pTmp, arg2 );
+    if ( ( victim = get_char_room_any( ch, arg1 ) ) == NULL )
+    {
+	char buf[100];
+	if( !str_cmp(arg1,"¬Y¤£ª¾¦W¤Hª«") )
+           return; /* ³o¬O¦]¬°¬Ý¤£¨£¤~·|³o¼Ë ¤£¬O¥X¿ù*/
+	
+	sprintf( buf," BUG : MPADDMARK : no VICTIM %s !! mob %d",
+	      arg1 , ch->pIndexData->vnum );
+	bug( buf,0);
+	return;
+    }
+    if ( arg2[0] == '\0' )
+    {
+	bug( " BUG : MPADDMARK : no MARK string !! mob %d ", ch->pIndexData->vnum );
+	return;
+    }
+    if ( IS_NPC(victim) )
+	return;
+    if( check_qmark( victim, arg2 ) == FALSE )
+        set_qmark( victim, arg2 );
+}
+
+/* ®æ¦¡: mpdelmark <victim> <mark> */
+void do_mpdel_qmark( CHAR_DATA *ch, char *argument )
+{
+    char arg1[MAX_STRING_LENGTH];
+    char arg2[MAX_STRING_LENGTH];
+    char *pTmp;
+    CHAR_DATA *victim;
+
+    if ( !IS_NPC( ch ) )
+    {
+        send_to_char( "§A·Q·F¹À?\n\r", ch );
+	return;
+    }
+    pTmp = one_argument( argument, arg1);
+    one_argument( pTmp, arg2 );
+    if ( ( victim = get_char_room_any( ch, arg1 ) ) == NULL )
+    {
+        char buf[100];
+        if( !str_cmp(arg1,"¬Y¤£ª¾¦W¤Hª«") )
+            return; /* ³o¬O¦]¬°¬Ý¤£¨£¤~·|³o¼Ë ¤£¬O¥X¿ù*/
+
+	sprintf(buf, " BUG : MPDELMARK : no VICTIM %s !! mob %d",
+	         arg1,ch->pIndexData->vnum );
+	bug( buf, 0);
+	return;
+    }
+    if ( arg2[0] == '\0' )
+    {
+	bug( " BUG : MPDELMARK : no MARK string !! mob %d ",ch->pIndexData->vnum );
+	return;
+    }
+    if ( IS_NPC(victim) )
+	return;
+    if( check_qmark( victim, arg2) == TRUE )
+        del_qmark( victim, arg2 );
+}
+
+/* ®æ¦¡: is_qmark <victim> <opr> <mark> */
+bool is_qmark( CHAR_DATA *victim, char* opr,char *mark )
+{
+    bool found;
+    char arg[MAX_STRING_LENGTH];
+
+    if( IS_NPC( victim ) )
+        return FALSE;
+    one_argument( mark, arg );
+    found = check_qmark( victim, arg );
+
+    if( !str_cmp( opr, "!=" ) )
+        found = ((found == TRUE) ? FALSE : TRUE);
+    else if( str_cmp( opr, "==" ) )
+        bug("Is_qmark: bad opr .", 0 );
+    return found;
+}
+
+
+	¦b merc.h ¤¤©w¸q:
+
+typedef struct  quest_mark_data		QMARK;		
+
+struct quest_mark_data
+{
+    QMARK *	next;
+    char  *     mark;
+};
+
+extern QMARK * qmark_free;
+DECLARE_DO_FUN( do_mpadd_qmark 	);
+DECLARE_DO_FUN( do_mpdel_qmark 	);
+
+void 	set_qmark	args( ( CHAR_DATA *victim, char *argument ) );
+bool 	del_qmark	args( ( CHAR_DATA *victim, char *arg      ) );
+bool 	check_qmark	args( ( CHAR_DATA *victim, char *arg      ) );
+bool 	is_qmark	args( ( CHAR_DATA *victim, char* opr, char *mark ) );
+
+	¶â....ÁÙ¦³ merc.h ¤¤ struc pc_data ¤¤ ¼W¥[¤@­ÓÄæ¦ì¡G
+
+    QMARK *             quest_mark;	
+
+        ±µµÛ¦b mob_prog.c ¤¤ªº bool mprog_do_ifchck() ³o­Ó¨ç¦¡¤¤¦h
+	¼W¥[¤@­Ó str_cmp¡G
+
+  if ( !str_cmp( buf, "is_qmark" ) )
+    {
+      switch ( arg[1] )
+        {
+        case 'i': return 1;
+        case 'n': if ( actor )
+                     return is_qmark( actor, opr, val );
+                  else return -1;
+        case 't': if ( vict )
+                     return is_qmark( vict, opr, val );
+                  else return -1;
+        case 'r': if ( rndm )
+                     return is_qmark( rndm, opr, val );
+                  else return -1;
+        default:
+          bug ("Mob: %d bad argument to 'is_qmark'", mob->pIndexData->vnum );
+          return -1;
+        }
+    }	
+
+	¦pªG§A§Æ±æ mob ¤]¯àÀË¬d player ¨­¤W±a©ÎªÌ¬O¸Ë³Æ¬Yª««~¡M¥i¥H¦A¥[
+	¤W³o¨â­Ó str_cmp¡G
+
+  if ( !str_cmp( buf, "is_inv_obj" ) )
+    {
+      switch ( arg[1] )
+        {
+        case 'i': /* return 1; */
+                  return is_inv_obj( mob, opr, val );
+        case 'n': if ( actor )
+                     return is_inv_obj( actor, opr, val );
+                  else return -1;
+        case 't': if ( vict )
+                     return is_inv_obj( vict, opr, val );
+                  else return -1;
+        case 'r': if ( rndm )
+                     return is_inv_obj( rndm, opr, val );
+                  else return -1;
+        default:
+          bug ("Mob: %d bad argument to 'is_inv_obj'", mob->pIndexData->vnum );
+          return -1;
+        }
+    }
+
+  if ( !str_cmp( buf, "is_equ_obj" ) )
+    {
+      switch ( arg[1] )
+        {
+        case 'i': return is_equ_obj( mob, opr, val );
+        case 'n': if ( actor )
+                     return is_equ_obj( actor, opr, val );
+                  else return -1;
+        case 't': if ( vict )
+                     return is_equ_obj( vict, opr, val );
+                  else return -1;
+        case 'r': if ( rndm )
+                     return is_equ_obj( rndm, opr, val );
+                  else return -1;
+        default:
+          bug ("Mob: %d bad argument to 'is_equ_obj'", mob->pIndexData->vnum );
+          return -1;
+        }
+    }
+
+
+	§O§Ñ¤F¦b mob_prog.c ªº«á­±¥[¤W³o¨â­Ó¨ç¦¡¡M¥H¤Î¦b merc.h ¤¤«Å
+	§i¡C
+
+bool is_inv_obj (CHAR_DATA* ch, char* opr, char* val)
+{
+  OBJ_DATA* obj;
+  int vnum;
+  bool found;
+  char topr[4];
+
+  vnum = atoi(val);
+
+  if( !str_cmp( opr, "!=" ) )
+  {
+      strcpy( topr, "!=" );
+      strcpy( opr, "==" );
+  }
+
+  found = FALSE;
+  for(obj = ch->carrying; obj != NULL ; obj = obj->next_content)
+  {
+      if( mprog_veval( obj->pIndexData->vnum, opr, vnum )
+      &&   obj->wear_loc == WEAR_NONE && can_see_obj( ch, obj ) )
+      {
+        found = TRUE;
+        break;
+      }
+  }
+
+  if( !str_cmp( topr, "!=" ) )
+      return found == TRUE ? FALSE : TRUE;
+  return found;
+}
+
+bool is_equ_obj (CHAR_DATA* ch, char* opr, char* val)
+{
+    OBJ_DATA* obj;
+    int vnum;
+    bool found;
+    char topr[4];
+
+    vnum = atoi(val);
+    if( !str_cmp( opr, "!=" ) )
+    {
+        strcpy( topr, "!=" );
+        strcpy( opr, "==" );
+    }
+
+    found = FALSE;
+    for ( obj = ch->carrying; obj != NULL; obj = obj->next_content )
+    {
+        if ( mprog_veval( obj->pIndexData->vnum, opr, vnum )
+        &&   obj->wear_loc != WEAR_NONE && can_see_obj( ch, obj ) )
+        {
+             found = TRUE;
+             break;
+        }
+    }
+
+  if( !str_cmp( topr, "!=" ) )
+       return found == TRUE ? FALSE : TRUE;
+  return found;
+}
+
+	³o¼Ë¤@¨Ó´N¥i¥H§Q¥Î mob program ¨Ó»s§@ quest ¡C
+
+	±µµÛ¤U¨Ó¬O­n¼W¥[¤@­Ó·sªº trigger¡CÅý player ¥i¥H©M mob talk
+	¨ÓÄ²µo¡C
+
+	¦b interp.c ¤¤ªº cmd_table ¤¤¼W¥[¤@­Ó·sªº«ü¥O¡G
+
+    { "talk",		do_talk,	POS_RESTING,	 0,  LOG_NORMAL	},	
+
+	·íµM¡M¦b merc.h ¤¤¤]­n©w¸q¡G
+
+DECLARE_DO_FUN(	do_talk		);
+
+	¦Ó§â do_talk() ³o­Ó¨ç¦¡¥[¦b act_comm.c ·í¤¤¡G
+
+void do_talk( CHAR_DATA *ch, char *argument )
+{
+    char arg[MAX_INPUT_LENGTH];
+    CHAR_DATA *victim;
+    int position;
+
+    if ( !IS_NPC(ch) && IS_SET(ch->act, PLR_SILENCE) )
+    {
+	send_to_char( "[32m¤Ñ¯«¤£²a§Aµo¥X¥ôÁn­µ![37m\n\r", ch );
+	return;
+    }
+
+    argument = one_argument( argument, arg );
+
+    if ( arg[0] == '\0'  )
+    {
+	send_to_char( "§A­n§i¶D¤°»ò¤H¦³Ãö¤°»ò¨Æ©O?\n\r", ch );
+	return;
+    }
+
+    if ( ( victim = get_char_world( ch, arg ) ) == NULL
+    || ( victim->in_room != ch->in_room ) )
+    {
+	send_to_char( "§A½Í¸Üªº¹ï¶H²{¦b¦n¹³¤£¦b MUD ¥@¬É¤¤³á!\n\r", ch );
+	return;
+    }
+
+    if( !IS_NPC(victim) )
+    {
+        send_to_char("¥Î tell ²á¤Ñ§a...\n\r",ch);
+        return;
+    }
+
+    if ( !IS_AWAKE(victim) )
+    {
+	act( "$EºÎ±o«Ü¼ô¦ÓÅ¥¤£¨ì§A»¡¤°»ò.", ch, 0, victim, TO_CHAR );
+	return;
+    }
+
+    if( argument[0] != '\0' )
+    {
+        act( "§A©M $N ¥æ½Í '$t'.", ch, argument, victim, TO_CHAR );
+        position		= victim->position;
+        victim->position	= POS_STANDING;
+        act( "$cfyw$n$cfwe ©M§A¥æ½Í '$t'.", ch, argument, victim, TO_VICT );
+        victim->position	= position;
+        victim->reply	= ch;
+        mprog_talk_trigger(argument,ch,victim);
+    }
+    else
+    {
+        act( "§A¸ÕµÛ©M $N ¥æ½Í....", ch, NULL, victim, TO_CHAR );
+        position		= victim->position;
+        victim->position	= POS_STANDING;
+        act( "$cfyw$n$cfwe ¸ÕµÛ©M§A¥æ½Í.", ch, NULL, victim, TO_VICT );
+        victim->position	= position;
+        victim->reply	= ch;
+        mprog_talk_trigger("topic",ch,victim);
+    }
+    return;
+}
+
+	§¹¦¨¤F talk ³o­Ó«ü¥O«á¡M«K¬O»s§@ talk_trigger¡C
+
+	db.c ¤¤ªº int mprog_name_to_type() ¤¤¥[¤W¤@¦æ¡G
+
+   if (!str_cmp(name,"talk_prog"))	return TALK_PROG;		
+
+	mob_commands.c ¤¤ªº char *mprog_type_to_name() ¤¤¥[¤W¤@¦æ¡G
+
+    case TALK_PROG:		return "talk_prog";	
+
+	mob_prog.c ¤¤¼W¥[¡G
+
+void mprog_talk_trigger( char *txt, CHAR_DATA *ch,CHAR_DATA *mob )
+{
+    MPROG_DATA *mprg;
+    char arg[MAX_STRING_LENGTH];
+
+    if( txt != NULL && !str_cmp(txt,"topic"))
+    {
+        for ( mprg = mob->pIndexData->mobprogs; mprg != NULL; mprg = mprg->next )
+            if ( mprg->type & TALK_PROG )
+            {
+                one_argument(mprg->arglist, arg);
+                if( arg[0] != '\0' && !str_cmp(arg,"topic") )
+                    mprog_driver( mprg->comlist, mob, ch, NULL, NULL );
+            }
+        return;
+    }
+
+    if ( IS_NPC( mob ) && ( mob->pIndexData->progtypes & TALK_PROG ) )
+      mprog_wordlist_check( txt, mob, ch, NULL, NULL, TALK_PROG );
+    return;
+}
+
+	¨º³o¼Ë´N§¹¦¨¤F¡C¤U­±¤¶²Ð¤@¨Ç½d¨Ò¡G
+	
+	¦pªG¦b mob program ¤¤¼g talk_prog «á±µ topic ªº¸Ü¡Mªí¥Ü player
+	©M mob talk¡M«á­±¤£¥[¥ô¦ó¤Þ¼Æ¡C¨Ò¦p player ¤U¹F³o¼Ëªº«ü¥O¡J
+	talk mob¡
+	´N·|°õ¦æ¤U­±ªº mob program¡C
+	
+	
+>talk_prog topic~
+    ....
+    ....
+~
+
+	¦pªG¦b mob program ¤¤¼g tlak_prog «á±µ¤@­Ó p ¥[¤W¤@­Ó¦r¦êªº¸Ü¡M¨º
+	»ò·í player ©M mob talk ®É«á­±¥[¤W¤Þ¼Æ "onething" ªº¸Ü¡M´N·|°õ¦æ
+	¤U­±ªº mob program¡C¨Ò¦p«ü¥O¡J
+	talk mob onething
+	´N·|°õ¦æ mob program ªº¤º®e¡C
+	
+>talk_prog p onething~
+    ....
+    ....
+~	
+
+	¦Ü©ó quest mark ªº¥Îªk¡G
+
+	mob ¥i¥H§Q¥Î mpadd_qmark ¥H¤Î mpdel_qmark «ü¥O¨Ó¬° player ¼W¥[
+	quest mark¡C¨Ò¦p¡G
+
+        mpadd_qmark $n areaname_get_obj1
+
+	¨º»ò player ´N·|¼W¥[¤@­Ó¥s°µ areaname_get_obj1 ªº quest mark¡C
+	¨ä¤¤«ØÄ³¥H©³½u¨Ó°Ï¤À¤@¨Ç³æ¦r¡M¦Ó²Ä¤@­Ó³æ¦r³Ì¦n©R¦W¬°°Ï°ìªº¦WºÙ
+	¡C³o¼Ë¤@¨Ó¡M°Ï°ì©M°Ï°ì¤§¶¡©Ò¨Ï¥Îªº quest mark ´N¤£·|¤¬¬Û­«ÂÐ¡M
+	¦Óµo¥Í°ÝÃD¡C
+
+	¦pªG­nÀËÅç player ¬O§_¦³¬Y¤@­Ó quest mark ¥i¥H§Q¥Î if ¨Ó°µ¨ì¡C
+
+	if is_qmark($n) == areaname_get_obj1
+
+	¨º»ò·í player ªº quest mark ¤¤§t¦³ areaname_get_obj1 ªº¸Ü¡M´N·|
+	°õ¦æ if ¤ºªº¤º®e¡C
+
+	§Q¥Î¥H¤W©Ò¤¶²Ðªº¤@¨Ç¤pµ{¦¡´N¥i¥H«ÜÂ²³æªº¹F¨ì¤@¨Ç quest ªº
+	­n¨D¡MÁöµM¤£¬O«Ü§¹¾ã¡M¦ý¬O°µ¬°°òÂ¦ªºÀ³¥ÎÀ³¸Ó´N°÷¤F¡C
+
+	¦pªG§A¯à¬°§Aªº mprog_do_ifchck ¦h¥[§ó¦hªº¶µ¥Ø¡M¨º»ò mob program
+	ªº«Â¤O·|§ó¥[±j¤j¡C
+

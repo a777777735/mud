@@ -1,0 +1,192 @@
+標  題: 適用於 Merc22 使用的符號定義功能
+
+        Qing 決定發憤圖強努力向 Gen 看齊之後, 在被累積數月的功課,
+        作業壓的喘不過氣的同時, 巧遇 Gen, 決定翹掉下午的離散數學,
+        跑來計中看看最近的電腦長的什麼樣子. 左右沒事, 就把上個月寫
+        的一段還算有用的 code post 出來. 希望冥冥中自有天意, 讓 Qing
+        下星期的軟體工程考試不要考的太差 :~~~~~~
+
+        這個功能本來是附加在我新寫的 driver 上面的, 不過一樣可以擺到
+        Merc 2.x 版中. 此功能可以定義一些符號常數, 而使得在區域撰寫
+        人員時, 在撰寫區域時, 可以避免記憶一些常數, 或者是查表的麻煩
+        . 版權所有, 僅供非營利用途使用. 有任何問題, 歡迎和我討論. 謝
+        謝!
+
+ヾ 在你的 head file 中的適當位置加入:
+
+#define SYMBOL_FILE             "symbol.def"
+typedef struct symbol_data      SYMBOL_DATA;
+
+struct symbol_data
+{
+    SYMBOL_DATA *next;
+    char *      str;
+    int         num;
+};
+
+
+ゝ 在 db.c 中:
+
+/* 宣告一個 hash table */
+SYMBOL_DATA *           symbol_hash[26];
+
+/*
+ * 從符號表中找到相對應的符號
+ */
+
+bool symbol_lookup(char *symbol,int *num)
+{
+    SYMBOL_DATA *pSymbol;
+    int letter;
+
+    if( symbol == '\0' )
+        return FALSE;
+    if( !isalpha(letter=symbol[0]) )
+        return FALSE;
+    letter = LOWER(letter) -'a';
+    for( pSymbol = symbol_hash[letter]; pSymbol!=NULL; pSymbol = pSymbol->next )
+    {
+        if( !str_cmp(pSymbol->str,symbol) )
+        {
+            *num = pSymbol->num;
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+/* boot 時載入symbol的函式 */
+
+void load_symbol(char *filename)
+{
+    FILE *fp;
+    char *word;
+    SYMBOL_DATA *pSymbol;
+    int letter;
+
+    if( ( fp = fopen(filename, "r") ) == NULL )
+    {
+        perror( filename );
+        exit(0);
+    }
+
+    for( ; ; )
+    {
+        word = fread_word( fp );
+        if( feof( fp ) )
+            break;
+        if( word[0] == '*' )
+        {
+            fread_to_eol( fp );
+            continue;
+        }
+        if( !str_cmp(word,"#EndSymbol") )
+            break;
+        pSymbol = alloc_perm( sizeof(*pSymbol) );
+        pSymbol->str = str_dup(word);
+        pSymbol->num = fread_number( fp );
+        if( !isalpha(pSymbol->str[0]) )
+        {
+            log_string(pSymbol->str);
+            bug("Load_Symbol: Not Alpha Symbol!",0);
+            exit(0);
+        }
+        letter = LOWER(pSymbol->str[0])-'a';
+        pSymbol->next = symbol_hash[letter];
+        symbol_hash[letter] = pSymbol;
+    }
+    fclose( fp );
+}
+
+
+ゞ 在 boot_db() 中加入:
+
+    load_symbol(SYMBOL_FILE); /* 載入符號定義檔 */
+
+々 修改 fread_number():
+
+/*
+ * Read a number from a file.
+ */
+int fread_number( FILE *fp )
+{
+    int number;
+    bool sign;
+    char c;
+
+    do
+    {
+        c = getc( fp );
+    }
+    while ( ISSPACE_BIG5(c) );
+
+    number = 0;
+
+    sign   = FALSE;
+    if ( c == '+' || c =='|' )
+    {
+        c = getc( fp );
+    }
+    else if ( c == '-' )
+    {
+        sign = TRUE;
+        c = getc( fp );
+    }
+
+    if( !isdigit(c) )
+    {
+        ungetc(c, fp );
+        if( !isalpha(c) )
+        {
+            bug("Fread_number: bad format.", 0 );
+            exit( 1 );
+        }
+        if( isalpha(c) &&  symbol_lookup(fread_alpha_word(fp),&number) == FALSE )
+        {
+            bug( "Fread_number: bad format.", 0 );
+            exit( 1 );
+        }
+        do
+        {
+            c = getc( fp );
+        }
+        while( ISSPACE_BIG5(c) );
+
+        ungetc(c,fp);
+        if( c != '+' && c != '-' && c != '|' )
+            return number;
+        else
+            return number+fread_number( fp );
+    }
+
+    while ( isdigit(c) )
+    {
+        number = number * 10 + c - '0';
+        c      = getc( fp );
+    }
+
+    if ( sign )
+        number = 0 - number;
+
+    if ( c == '|' )
+        number += fread_number( fp );
+    else if ( c != ' ' )
+        ungetc(c, fp );
+
+    return number;
+}
+
+ぁ symbol.def 的範例
+
+*
+* 裝戴位置的定義
+*
+
+EQ_WEAR_LOC_HEAD                0
+EQ_WEAR_LOC_FACE                1
+EQ_WEAR_LOC_BODY                2
+EQ_WEAR_LOC_BOOT                3
+EQ_WEAR_LOC_HAND                4
+EQ_WEAR_LOC_GLOVE               6
+
+あ 自此, fread_number 讀到經由定義過的符號時, 會自動換成相對應的數字.

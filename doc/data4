@@ -1,0 +1,228 @@
+Title:     print_to_char for ENVY
+
+以下為一個有一點方便的function
+原本是時空之門裡面用的, 現在 post 出來給大家
+可以讓你不用為了 screen pager 煩惱要把訊息先囤積在 buffer
+然後再一次送給 send_to_char 的麻煩事情, 並且支援如
+printf 般的呼叫格式!(很多地方都可以改成像這樣子)
+
+首先在 comm.c 更改如下
+最後會有一個 example 在 act_info.c 的 do_who 指令作使用示範!
+由於是重新改寫, 可能會有 bug!!
+引用時請注意智慧財產權...
+
+/* comm.c */
+#include<varargs.h>
+
+void vsprintf( char *buf, const char *format, va_list args );
+
+/*
+ * Print to one char. written by Wyvern
+ */
+void print_to_char( int ctrl, CHAR_DATA *ch, const char *format, ... )
+{
+    va_list args;
+    char buf[MAX_STRING_LENGTH];
+    int add_length;
+    static char *bp;
+    static int length;
+
+    if( ch->desc == NULL )
+        return;
+
+    va_start(args);
+    vsprintf( buf, format, args );
+    va_end(args);
+
+    switch( ctrl )  {
+        case first:
+            if( bp != NULL )
+            {
+                /* There must be somewhere started a print already */
+                abort(1);
+            }
+            length = strlen( buf );
+            bp = alloc_mem( length + 1 );
+            strcpy( bp, buf );
+        case next:
+        case end:
+            add_length = strlen( buf );
+            if( length + add_length + 1 < 32000 )   {
+                char *tmp = alloc_mem( length + add_length + 1 );
+                strcpy( tmp, bp );
+                strcpy( tmp + length, buf );
+                free_mem( bp, length + 1 );
+                bp = tmp;
+                length += add_length;
+            }   /* else skip too long strings */
+
+            if( ctrl == end )
+            {
+                send_to_char( bp, ch );
+                free_mem( bp, length + 1 );
+                bp = NULL;
+                length = 0;
+            }
+            return;
+        default:
+            send_to_char( buf, ch );
+            return;
+    };
+}
+
+/* act_info.c */
+
+/*
+ * New 'who' command originally by Alander of Rivers of Mud.
+ */
+void do_who( CHAR_DATA *ch, char *argument )
+{
+    DESCRIPTOR_DATA *d;
+    int              iClass;
+    int              iLevelLower;
+    int              iLevelUpper;
+    int              nNumber;
+    int              nMatch;
+    bool             rgfClass [ MAX_CLASS ];
+    bool             fClassRestrict;
+    bool             fImmortalOnly;
+
+    /*
+     * Set default arguments.
+     */
+    iLevelLower    = 0;
+    iLevelUpper    = L_DIR; /*Used to be Max_level */
+    fClassRestrict = FALSE;
+    fImmortalOnly  = FALSE;
+    for ( iClass = 0; iClass < MAX_CLASS; iClass++ )
+    rgfClass[iClass] = FALSE;
+
+    /*
+     * Parse arguments.
+     */
+    nNumber = 0;
+    for ( ;; )
+    {
+    char arg [ MAX_STRING_LENGTH ];
+
+    argument = one_argument( argument, arg );
+    if ( arg[0] == '\0' )
+        break;
+
+    if ( is_number( arg ) )
+    {
+        switch ( ++nNumber )
+        {
+        case 1: iLevelLower = atoi( arg ); break;
+        case 2: iLevelUpper = atoi( arg ); break;
+        default:
+        send_to_char( "Only two level numbers allowed.\n\r", ch );
+        return;
+        }
+    }
+    else
+    {
+        int iClass;
+
+        if ( strlen( arg ) < 3 )
+        {
+        send_to_char( "Classes must be longer than that.\n\r", ch );
+        return;
+        }
+
+        /*
+         * Look for classes to turn on.
+         */
+        arg[3]    = '\0';
+        if ( !str_cmp( arg, "imm" ) )
+        {
+        fImmortalOnly = TRUE;
+        }
+        else
+        {
+        fClassRestrict = TRUE;
+        for ( iClass = 0; iClass < MAX_CLASS; iClass++ )
+        {
+            if ( !str_cmp( arg, class_table[iClass].who_name ) )
+            {
+            rgfClass[iClass] = TRUE;
+            break;
+            }
+        }
+
+        if ( iClass == MAX_CLASS )
+        {
+            send_to_char( "That's not a class.\n\r", ch );
+            return;
+        }
+        }
+    }
+    }
+
+    /*
+     * Now show matching chars.
+     */
+    nMatch = 0;
+    for ( d = descriptor_list; d; d = d->next )
+    {
+    CHAR_DATA       *wch;
+    char      const *class;
+
+    wch   = ( d->original ) ? d->original : d->character;
+
+    /*
+     * Check for match against restrictions.
+     * Don't use trust as that exposes trusted mortals.
+     */
+    if ( d->connected != CON_PLAYING || !can_see( ch, wch ) )
+        continue;
+
+    if (   wch->level < iLevelLower
+        || wch->level > iLevelUpper
+        || ( fImmortalOnly  && wch->level < LEVEL_HERO )
+        || ( fClassRestrict && !rgfClass[wch->class] ) )
+        continue;
+
+    if( !nMatch )
+        print_to_char( first, ch, "" );
+
+    nMatch++;
+
+    /*
+     * Figure out what to print for class.
+     */
+    class = class_table[wch->class].who_name;
+    if ( wch->level >= LEVEL_IMMORTAL )
+        switch ( wch->level )
+          {
+          default: break;
+          case L_DIR: class = "DIRECT"; break;
+          case L_SEN: class = "SENIOR"; break;
+          case L_JUN: class = "JUNIOR"; break;
+          case L_APP: class = "APPREN"; break;
+          }
+
+    /*
+     * Format it up.
+     */
+    if ( wch->level < LEVEL_IMMORTAL )
+        print_to_char( next, ch, "[%2d %s] %s%s%s%s\n\r",
+            wch->level,
+            class,
+            IS_SET( wch->act, PLR_KILLER ) ? "(KILLER) " : "",
+            IS_SET( wch->act, PLR_THIEF  ) ? "(THIEF) "  : "",
+            wch->name,
+            wch->pcdata->title );
+    else
+        print_to_char( next, ch, "[%s] %s%s%s%s\n\r",
+            class,
+            IS_SET( wch->act, PLR_KILLER ) ? "(KILLER) " : "",
+            IS_SET( wch->act, PLR_THIEF  ) ? "(THIEF) "  : "",
+            wch->name,
+            wch->pcdata->title );
+    }
+
+    print_to_char( end, ch, "You see %d player%s in the game.\n\r",
+        nMatch, nMatch == 1 ? "" : "s" );
+    return;
+}

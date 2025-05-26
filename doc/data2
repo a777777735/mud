@@ -1,0 +1,66 @@
+若你想得知簽入玩者遠端的帳號名, 可以用下列的 patch.
+此程式藉由回查遠端機器之 identd 而得知遠端使用者的帳號名.
+所以若遠端機器並無安裝 identd, 將無法得知.
+交大計中與交大資工機器皆有安裝 identd, 當然個人電腦(by NCSA telnet)
+是沒有的. :)
+
+It's for Envy 1.0(because I use it now), but I believe Merc 2.x is the same.
+Hope it useful for DikuMUD Administrator.
+
+-------
+
+        --- MERC.H ---
+
+Add a field in descriptor_data struct:
+    char *removeuser;                   /* REMOTEUSER -tywen */
+
+
+        --- COMM.C --
+
+--- new_descriptor()
+
+1) add a local variable:
+    /* REMOTEUSER -tywen */
+    struct sockaddr_in *sin = (struct sockaddr_in *)(&sock);
+
+2) modify following code:
+
+< old stuff
+> new stuff
+- delete it
+
+<        /*
+<         * Would be nice to use inet_ntoa here but it takes a struct arg,
+<         * which ain't very compatible between gcc and system libraries.
+<         */
+<        int addr;
+>        char *user;
+
+>        user = rfc931_name( (int)desc, sin );
+>        dnew->remoteuser = str_dup( user );
+
+<        addr = ntohl( sock.sin_addr.s_addr );
+<        sprintf( buf, "%d.%d.%d.%d",
+<            ( addr >> 24 ) & 0xFF, ( addr >> 16 ) & 0xFF,
+<            ( addr >>  8 ) & 0xFF, ( addr       ) & 0xFF
+<            );
+<        sprintf( log_buf, "Sock.sinaddr:  %s", buf );
+<        log_string( log_buf );
+<        from = gethostbyaddr( (char *) &sock.sin_addr,
+<                             sizeof(sock.sin_addr), AF_INET );
+-        dnew->host = str_dup( from ? from->h_name : buf );
+
+>        /* Append local doname */
+>        if ( from )
+>        {
+>            char hname[1024];
+
+>            strncpy( hname, from->h_name, 1023 );
+>            if ( strchr( hname, '.' ) == NULL )
+>            sprintf( hname, "%s.%s", hname, "csie.nctu.edu.tw" );
+>            dnew->host = str_dup( hname );
+>        }
+>        else
+>            dnew->host = str_dup( buf );
+
+rfc931_name() procedure will post later.

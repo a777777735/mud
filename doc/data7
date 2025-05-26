@@ -1,0 +1,142 @@
+標  題: 關於 link list 的 bug & solution
+
+Hi all mud adm
+
+        在 Merc Mud 裡面有一種 Bug 是很難去想到的
+        在此 release 給大家, 希望能幫大家解決一些
+        常見但是又不知道怎麼發生的 bug, 也希望
+        大家能多多給予意見與指教, 以下的解決方式
+        cost 頗高, 也希望能有更高明且方便的解決辦法
+
+        bug 舉例如
+
+        for( ch = char_list; ch; ch = ch_next )
+        {
+                ch_next = ch->next;
+
+                ....
+                some_function( ch, ... );
+                ....
+                /* bug will happened in next loop, so
+                   You always dunno where is the TRUE bugs' location */
+        }
+
+        void some_function( CHAR_DATA *ch, ... )
+        {
+                ...
+                extract_char( victim /* 不巧的是 victim 剛好是 ch->next */ );
+                ...
+                /* 或者同時連 ch 或 ch 的前幾個都 extract 掉了 */
+        }
+
+        這種情況常在一個 skill 寫得很暴力的 mud 裡面見到
+        雖然 Envy Mud 用當初我建議的 free mark 的方式去處理
+        但是如果遇到 ch && ch->next 同時都被 free 掉的情形仍然有問題
+        (修正: 應該沒有問題, 不過在某些function裡面不能跳過 ->deleted)
+
+        目前是想到一個新的解決方法如下
+
+        把 link list 改成雙向鏈結
+        而 free list 則仍然維持單向鏈結
+        每個 node 加上 free mark 以區別該 node 是否在 free list 中
+        寫個 next function 如下
+
+        next_node *next( node *np )
+        {
+                while( np && np->in_free_list )
+                        np = np->prev;
+                if( np )
+                        return np->next;
+                else /* 表示所有的 prev node 都也不幸被 free 掉了 */
+                        return node_list;
+        }
+
+        實際用法如
+
+        CHAR_DATA *next_char( CHAR_DATA *ch )
+        {
+                while( ch && ch->in_free_list )
+                        ch = ch->prev;
+                return ch ? ch->next : char_list;
+        }
+
+        ...
+
+        /* 假如以下這個 loop 是在 run-time 時對 char_list 動作的最外面一圈 */
+        old_char_free = char_free;
+        for( ch = char_list; ch;
+        ch = next_char( ch ), old_char_free = char_free ) {
+            /* you can do everything you want here */
+        }
+
+        /* 假如以下這個 loop 不是在 run-time 時對 char_list 動作的最外一圈
+           或是你無法判斷是不是時(如在 recusive function 裡面) */
+        for( ch = char_list; ch; ch = next_char(ch) )   {
+            /* you can do everything you want here */
+        }
+
+        void extract_char( CHAR_DATA *ch )
+        {
+                ...
+                ch->in_free_list = TRUE;
+                ch->next = free_char;
+                free_char= ch;
+        }
+
+        CHAR_DATA *alloc_char()
+        {
+                static CHAR_DATA empty_char;
+                CHAR_DATA *new_ch;
+
+                if( old_char_free && old_char_free->next ) {
+                        new_ch = old_char_free->next;
+                        old_char_free->next = new_ch->next;
+                /* 這裡可能造成一個 bug
+                   就是你忘了在最外面的 loop 完後
+                   才 old_char_free = char_free
+                   如果太早的話, 在 extract_char 後不久又 alloc_char,
+                   會造成 next_char() = char_list, 就可能會有
+                   無限回圈, 請注意  */
+                }
+                else
+                        new_ch = ( CHAR_DATA * )calloc(1, sizeof(CHAR_DATA));
+                *new_ch = empty_char; /* 順便把 in free list 清為 FALSE */
+
+                return new_ch;
+        }
+
+/* 與 char_list 串連的 function */
+
+        void insert_char( CHAR_DATA *ch )
+        {
+            if( char_list )
+                char_list->prev = ch;
+            ch->next = char_list;
+            char_list    = ch;
+        }
+
+/* 從 char_list 拿掉 ch 的 function */
+
+        bool delete_char( CHAR_DATA *ch )
+        {
+            if( ch->in_free_list )
+                return FALSE;
+
+            if( char_list == ch )
+                char_list = ch->next;
+
+            if( ch->prev )
+                ch->prev->next = ch->next;
+            if( ch->next )
+                ch->next->prev = ch->prev;
+            ch->in_free_list = TRUE;
+            return TRUE;
+        }
+
+記住!!
+在最外圈的 loop 結束或開始加上一行(其實在取得 next_char() 後就可以了)
+
+old_char_free = char_free;
+
+但是如果是這個 loop 是在一個 function 內然後又在 loop 內 recursive
+呼叫自己時 在 function 之外才能加上這一行!!

@@ -1,0 +1,255 @@
+一、 如果在 showstr_head 中的 data 沒 show完﹐又有新的 str 進來...
+     merc22 忘了清除舊的 buffer...
+
+void send_to_char( const char *txt, CHAR_DATA *ch )
+{
+    if ( txt == NULL || ch->desc == NULL )
+        return;
+    /* add by Corel to clean last string */
+    if(ch->desc->showstr_point != 0)
+        free_string(ch->desc->showstr_head);
+
+    ch->desc->showstr_head = alloc_mem( strlen( txt ) + 1 );
+    strcpy( ch->desc->showstr_head, txt );
+    ch->desc->showstr_point = ch->desc->showstr_head;
+    show_string( ch->desc, "" );
+
+}
+
+二、 有一塊 memory 沒 free
+void close_socket( DESCRIPTOR_DATA *dclose )
+{
+      .
+      .
+      .
+    close( dclose->descriptor );
+    free_string( dclose->host );
+    /* add by Corel */
+    if(dclose->outbuf)
+    {
+       /* log_string("free mem in close_socket "); */
+        free_mem(dclose->outbuf,dclose->outsize);
+    }
+    dclose->next        = descriptor_free;
+    descriptor_free     = dclose;
+#if defined(MSDOS) || defined(macintosh)
+    exit(1);
+#endif
+    return;
+}
+
+三、 prompt 的 bug...有四個地方要改
+
+1.在 void nanny( DESCRIPTOR_DATA *d, char *argument )
+  之中改
+     /* ch->prompt = "<%hhp %mm %vmv> "; */
+        ch->prompt = str_dup("<%hhp %mm %vmv> ");
+
+2.在CHAR_DATA *create_mobile( MOB_INDEX_DATA *pMobIndex )
+  之中改
+   /* mob->prompt         = "<%h %m %v>"; */
+      mob->prompt         = str_dup("<%h %m %v>");
+
+3.在 void free_char( CHAR_DATA *ch )
+   加入 free_string
+    .
+    .
+    free_string( ch->description        );
+    free_string( ch->prompt             ); /* add by Corel */
+
+4. 在void fread_char( CHAR_DATA *ch, FILE *fp )
+   之中..將讀 prompt 的部份改掉...
+
+   /*  KEY( "Prompt",   ch->prompt,             fread_string( fp ) );*/
+            if ( !str_cmp( word , "Prompt" ) )
+            {     /* add by Corel free old prompt */
+                 free_string( ch->prompt );
+                 ch->prompt = fread_string( fp );
+                 fMatch = TRUE;
+                 break;
+            }
+
+五、
+  在void affect_remove( CHAR_DATA *ch, AFFECT_DATA *paf )
+  之中...list 連錯
+
+    paf->next   = affect_free;
+  /*  affect_free       = paf->next;*/
+    affect_free         = paf;
+    return;
+
+/*---------------------------------------------------------------------------*
+ | memory.c --- Rewrited by Wyvern, Fix the free_mem() to be used without    |
+ |              size parameter, and check multiple free automatically.       |
+ *---------------------------------------------------------------------------*/
+#include<stdlib.h>
+#include<stdio.h>
+#include"../merc.h"
+
+/*
+ * Memory management.
+
+ * Memory management.
+ * Increase MAX_STRING from 1500000 if you have too.
+ * Tune the others only if you understand what you're doing.
+ */
+#define                 MAX_STRING      1500000
+
+#if defined( machintosh )
+#define                 MAX_PERM_BLOCK  131072
+#define                 MAX_MEM_LIST    11
+
+void *                  rgFreeList              [ MAX_MEM_LIST       ];
+const int               rgSizeList              [ MAX_MEM_LIST       ]  =
+{
+    16, 32, 64, 128, 256, 1024, 2048, 4096, 8192, 16384, 32768-64
+};
+#else
+#define                 MAX_PERM_BLOCK  131072
+#define                 MAX_MEM_LIST    12
+
+void *                  rgFreeList              [ MAX_MEM_LIST       ];
+const int               rgSizeList              [ MAX_MEM_LIST       ]  =
+{
+    16, 32, 64, 128, 256, 1024, 2048, 4096, 8192, 16384, 32768, 65536
+
+    16, 32, 64, 128, 256, 1024, 2048, 4096, 8192, 16384, 32768, 65536
+};
+#endif
+
+int                     nAllocPerm;
+int                     sAllocPerm;
+
+
+struct  mem_block       {
+        int     size;
+        int valid;
+        char memory[1];
+}       *MB;
+
+/*
+ * Allocate some ordinary memory,
+ *   with the expectation of freeing it someday.
+ */
+void *alloc_mem( int sMem )
+{
+    void *pMem;
+    int iList;
+
+
+
+        sMem += (int)MB->memory - (int)&(MB->size);
+
+    for ( iList = 0; iList < MAX_MEM_LIST; iList++ )
+    {
+        if ( sMem <= rgSizeList[iList] )
+            break;
+    }
+
+    if ( iList == MAX_MEM_LIST )
+    {
+        bug( "Alloc_mem: size %d too large.", sMem );
+        stop( 1 );
+    }
+
+    if ( !rgFreeList[iList] )
+    {
+        pMem              = alloc_perm( rgSizeList[iList] );
+    }
+    else
+    {
+        pMem              = rgFreeList[iList];
+        rgFreeList[iList] = * ( (void **) rgFreeList[iList] );
+
+        rgFreeList[iList] = * ( (void **) rgFreeList[iList] );
+    }
+
+        MB = (struct mem_block *)pMem;
+        MB->size = sMem;
+        MB->valid = TRUE;
+    return (void *)MB->memory;
+}
+
+/*
+ * Free some memory.
+ * Recycle it back onto the free list for blocks of that size.
+ */
+void free_mem( void *pMem )
+{
+    int iList;
+    int sMem;
+
+
+        MB = (struct mem_block *)(pMem - ((int)MB->memory - (int)&(MB->size)));
+        sMem = MB->size;
+
+        sMem = MB->size;
+        pMem = (void *)MB;
+
+        if ( !MB->valid )
+        {
+        bug( "Free_mem: it is freed already" );
+        abort( 1 );
+        }
+
+    for ( iList = 0; iList < MAX_MEM_LIST; iList++ )
+    {
+        if ( sMem <= rgSizeList[iList] )
+            break;
+    }
+
+    if ( iList == MAX_MEM_LIST )
+    {
+        bug( "Free_mem: size %d too large.", sMem );
+        stop( 1 );
+    }
+
+    * ( (void **) pMem ) = rgFreeList[iList];
+    rgFreeList[iList]  = pMem;
+
+    rgFreeList[iList]  = pMem;
+        MB->valid = FALSE;
+    /* A Mark for checking whether it is freed again  */
+    return;
+}
+
+
+
+/*
+ * Allocate some permanent memory.
+ * Permanent memory is never freed,
+ *   pointers into it may be copied safely.
+ */
+void *alloc_perm( int sMem )
+{
+           void *pMem;
+    static char *pMemPerm;
+    static int   iMemPerm;
+
+    while ( sMem % sizeof( long ) != 0 )
+        sMem++;
+    if ( sMem > MAX_PERM_BLOCK )
+
+    if ( sMem > MAX_PERM_BLOCK )
+    {
+        bug( "Alloc_perm: %d too large.", sMem );
+        stop( 1 );
+    }
+
+    if ( !pMemPerm || iMemPerm + sMem > MAX_PERM_BLOCK )
+    {
+        iMemPerm = 0;
+        if ( !( pMemPerm = calloc( 1, MAX_PERM_BLOCK ) ) )
+        {
+            perror( "Alloc_perm" );
+            stop( 1 );
+        }
+    }
+
+    pMem        = pMemPerm + iMemPerm;
+    iMemPerm   += sMem;
+    nAllocPerm += 1;
+    sAllocPerm += sMem;
+    return pMem;
+}
+

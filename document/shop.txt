@@ -1,0 +1,228 @@
+
+一、檔案位置﹕
+
+所有在 <區域>/shp/ 目錄底下的 *.shp 檔案都是商店檔案﹐而所有
+的商店就是由這些檔案所組成﹐一個檔案代表一個商店。
+
+二、格式﹕
+
+*               /* 任何由 * 開頭的這一行為註解﹐系統不會讀入 */
+Type            <數值或字串常數>
+Keeper          <數值>
+
+Object          <數值> <數值> <數值> <數值> <數值>
+或
+Object1         <數值>
+..
+..
+Object5         <數值>
+
+Horse           <數值> <數值> <數值> <數值> <數值>
+Mercenary       <數值> <數值> <數值> <數值> <數值>
+OpenHour        <數值>
+CloseHour       <數值>
+SellProfit      <數值>
+BuyProfit       <數值>
+Sential         <數值>
+
+End             /* 商店檔案的結束 */
+
+三、範例﹕
+
+Type            SHOP_STORE
+Keeper          301
+Object          12 11
+OpenHour        0
+CloseHour       23
+SellProfit      80
+BuyProfit       120
+Sential         501
+End
+
+四、說明﹕
+
+(1) Type (商店類型)﹕
+  SHOP_STORE              1      買賣商店
+  SHOP_SMITH              2      鐵匠裝備修理店
+  SHOP_MERCENARY          3      傭兵買賣店
+  SHOP_COPER              4      馬房
+
+  這一項數值表示這一間商店的形式﹐比如說是屬於普通商店或是裝
+  備修理店或是馬房等等。當你設定了商店種類之後, 後面設定的物
+  品種類則有所不同﹐例如買賣商店則表示可以買賣物品的種類(ITEM_TYPE)
+  ﹐若為裝備修理商店則設定可以修理的裝備位置(ITEM_WEAR_LOCATION)。
+
+(2) Keeper (商店老闆)﹕
+  代表這間商店的店長﹐也就是這隻怪物的號碼﹐這隻怪物必須比這
+  間商店還要早出現﹐不然系統會判定錯誤﹐也就是說這隻怪物的描
+  述必須比這個商店還要早出現﹐這必須是一個數值﹐而且不能被省
+  略。
+
+(3) Object (物品號碼)﹕
+  代表這間商店所販賣的物品的號碼﹐這個號碼不必比物品還要早出
+  現﹐你最多可以輸入五個數值﹐這意味著一間商店最開始最多只能
+  賣五種物品﹐如果是馬房的話﹐只能賣五種馬﹐你可以不必一定輸
+  入到五個數值﹐如果你只想賣兩種物品﹐你就輸入這兩個物品的類
+  型號碼﹐如果你輸入的是 0﹐因為這並不是一個正確的物品號碼﹐
+  所以商店並不會賣這種物品﹐請注意﹐這裡所代表的是買賣物品的
+  種類﹐至於你要賣什麼物品﹐必須到重置裡面設定將物品給予這個
+  老闆才可以﹐至於馬房或傭兵販賣店則可以用 Horse 或是 Mercenary
+  來代替這個數值。如果你輸入的數值個數多於五個﹐系統會忽略多
+  出來的數值﹐你也可以使用 Object1  到 Object5  來個別輸入這
+  五個數值。
+
+  買賣物品商店可以賣的東西種類如下﹕
+
+  ITEM_LIGHT                      燈光類
+  ITEM_SCROLL                     捲軸類
+  ITEM_WAND                       法杖類
+  ITEM_STAFF                      手杖類
+  ITEM_WEAPON                     武器類
+  ITEM_TREASURE                   珍寶類
+  ITEM_ARMOR                      防具類
+  ITEM_POTION                     藥水類
+  ITEM_CONTAINER                  容器類
+  ITEM_DRINK_CON                  水袋類
+  ITEM_FOOD                       食物類
+  ITEM_PILL                       藥丸類
+
+  修理商店可以修理的種類如下﹕
+
+  ITEM_TAKE                       可以拿的物品（請不要設這一項）
+  ITEM_WEAR_FINGER                手指
+  ITEM_WEAR_NECK                  脖子
+  ITEM_WEAR_BODY                  身體
+  ITEM_WEAR_HEAD                  頭部
+  ITEM_WEAR_LEGS                  腿上
+  ITEM_WEAR_FEET                  腳上
+  ITEM_WEAR_HANDS                 手上
+  ITEM_WEAR_ARMS                  手臂
+  ITEM_WEAR_SHIELD                盾
+  ITEM_WEAR_ABOUT                 披風
+  ITEM_WEAR_WAIST                 腰部
+  ITEM_WEAR_WRIST                 手腕
+  ITEM_WIELD                      武器
+  ITEM_HOLD                       握住
+  ITEM_EARRING                    耳環
+  ITEM_ALL_ARMOR                  這是特別給修理店使用, 代表所有的防具.
+  ITEM_ALL_REPAIR                 這也是專門給修理店用, 代表所有可修理的物品.
+
+  其他類型請勿設定可以買賣﹐另外商店請勿使用 ITEM_ALL_ARMOR
+  或是 ITEM_ALL_REPAIR  兩種數值﹐會有錯誤。
+
+(4) Horse (馬房賣的馬)﹕
+  這個數值設定賣的馬的號碼﹐最多可以有五個﹐跟 Value  中所代
+  表的一樣﹐不過這個數值只有商店型態 SHOP_HOPER 才有用。
+
+(5) Mercenary (傭兵號碼)﹕
+  這個數值用來設定傭兵的號碼﹐最多可以有五個﹐跟 Value  中所
+  表的一樣3這個數值只有在商店型態是 SHOP_MERCENARY  才有效。
+
+(6) OpenHour (開店時間)﹕
+  就是這間商店的開張的時間﹐你可以輸入 0  到 23 之間的一個數
+  值﹐以代表 0  點到 23 點﹐這個選項當然可以被忽略﹐內定值是
+  0 ﹐請注意﹐程式並不會去檢查你所設定的時間是否位於上述的範
+  圍內﹐因為可能以後的遊戲時間並不一定是 24 小時制。
+
+(7) CloseHour (打烊時間)﹕
+  就是這間商店的關門的時間﹐你可以輸入 0  到 23 之間的一個數
+  值﹐以代表 0  點到 23 點﹐這個選項當然可以被忽略﹐內定值是
+  23﹐請注意﹐程式並不會去檢查你所設定的時間是否位於上述的範
+  圍內﹐因為可能以後遊戲的時間並不一定是24小時制。
+
+(8) SellProfit (買入比率)﹕
+  這個數值可以被忽略﹐內定值設定 80 ﹐這是此物品被買入時的價
+  格﹐通常會以比一百低的價格向玩家買入﹐請不要設定的比一百高
+  ﹐會被當作經濟來源﹐如果設定一百的話則表示以物品原本的價格
+  收購。
+
+(9) BuyProfit (賣出比率)﹕
+  這個數值可以被忽略﹐內定值設定 120  ﹐這是商店販賣物品時所
+  用的價格﹐為百分比。
+
+(10) Sential (商店位置)﹕
+  設定這個老闆是否位在一個位置﹐後面的號碼即是房間號碼﹐代表
+  這個老闆的買賣地點﹐讓這個老闆不會離開崗位﹐如果你要寫到處
+  亂走的小販請忽略這一個項目﹐並且把小販設定會走動即可﹐如果
+  設定了這一項則老闆不會亂跑﹐會固定在這一個房間。
+
+  P.S. 請勿將怪物設定會亂跑又設定 Sential ﹐那樣會看到這一個
+  怪物很忙很忙﹐努力的跑來跑去﹗
+
+(11) 整個敘述以 End 結束。
+
+(12) 如果你想開一個 24 小時的商店﹐你可以這樣設定
+
+OpenHour        0
+CloseHour       23
+
+(13)  請注意﹐商店真正所賣的東西﹐是在怪物身上並不和這裡的設
+  定有關﹐所以你想讓這隻怪物賣東西﹐你必須還要再把物品給怪物
+  ﹐所以你必須另外在重置( RESET ) 裡再設定一次﹐這裡所輸入的
+  五個數值只是告訴程式﹐他可以賣哪些東西﹐而賣的東西要另外再
+  設定﹐除此之外﹐你是否有注意到這裡並沒有一個數值設定這個商
+  店是流動攤販或是固定商店﹐這完全取決於這隻店長的屬性﹐若是
+  店長是會走動的﹐那麼這個商店就是一個流動攤販﹐反之則相反。
+
+五、附註﹕
+(1) 相關字串代表﹕
+
+* 商店種類
+
+SHOP_STORE                      1
+SHOP_SMITH                      2
+SHOP_HOPER                      3
+SHOP_MERCENARY                  4
+
+* 物品種類
+
+ITEM_LIGHT                      1
+ITEM_SCROLL                     2
+ITEM_WAND                       3
+ITEM_STAFF                      4
+ITEM_WEAPON                     5
+ITEM_TREASURE                   6
+ITEM_ARMOR                      7
+ITEM_POTION                     8
+ITEM_FURNITURE                  9
+ITEM_TRASH                     10
+ITEM_CONTAINER                 11
+ITEM_DRINK_CON                 12
+ITEM_KEY                       13
+ITEM_FOOD                      14
+ITEM_MONEY                     15
+ITEM_BOAT                      16
+ITEM_CORPSE_NPC                17
+ITEM_CORPSE_PC                 18
+ITEM_FOUNTAIN                  19
+ITEM_PILL                      20
+ITEM_MAGICSTONE                21
+
+* 物品的穿戴旗標
+
+ITEM_NOT_TAKE                   0
+ITEM_TAKE                       1
+ITEM_WEAR_FINGER                2
+ITEM_WEAR_NECK                  4
+ITEM_WEAR_BODY                  8
+ITEM_WEAR_HEAD                 16
+ITEM_WEAR_LEGS                 32
+ITEM_WEAR_FEET                 64
+ITEM_WEAR_HANDS               128
+ITEM_WEAR_ARMS                256
+ITEM_WEAR_SHIELD              512
+ITEM_WEAR_ABOUT              1024
+ITEM_WEAR_WAIST              2048
+ITEM_WEAR_WRIST              4096
+ITEM_WIELD                   8192
+ITEM_HOLD                   16384
+ITEM_EARRING                32768
+ITEM_ALL_ARMOR              40958
+ITEM_ALL_REPAIR             49150
+
+(2) 檔案名稱與位置﹕
+
+商店檔一律放在區域的 shp 子目錄下﹐檔名為 *.shp ﹐至於檔案
+的名稱請自行設定﹐只是在 shp 目錄下所有 *.shp 檔案都會被當
+作商店檔案處理。
+

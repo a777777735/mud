@@ -1,0 +1,95 @@
+Script started on Tue Nov 17 15:40:24 1998
+[[1;32mpaul[0m] [1;33mmud[0m:~/mud/doc$ joe sc
+定義檔 '/usr/local/lib/joerc' 處理中..... 完成
+[m[1;24r[H[J[7m    IW   sc                         行數 1    列數 1    3:40  Ctrl-K H 線上輔助
+[m新檔[22B
+檔案： sc 並未改變所以不需要更新資料.
+[[1;32mpaul[0m] [1;33mmud[0m:~/mud/doc$ v
+bash: v: command not found
+[[1;32mpaul[0m] [1;33mmud[0m:~/mud/doc$ ls
+MOBProgram.txt	data13		data6		memory.txt	skill.txt
+act.txt		data14		data7		new.txt		sky.txt
+area.txt	data15		data8		pfile.txt	srcfix.txt
+class.txt	data16		data9		port.txt	trad.txt
+command.txt	data17		dico-1		room.c		typescript
+contrib.txt	data18		dico-2		score2		vnum.txt
+data1		data2		drool.txt	script.c
+data10		data3		hacker.txt	security.txt
+data11		data4		license.doc	sites.txt
+data12		data5		license.txt	skill.bak
+[[1;32mpaul[0m] [1;33mmud[0m:~/mud/doc$ v sc
+score2    script.c
+[[1;32mpaul[0m] [1;33mmud[0m:~/mud/doc$ v sc
+score2    script.c
+[[1;32mpaul[0m] [1;33mmud[0m:~/mud/doc$ v sc
+score2    script.c
+[[1;32mpaul[0m] [1;33mmud[0m:~/mud/doc$ v sc    joe script.c        ore2
+定義檔 '/usr/local/lib/joerc' 處理中..... 完成
+[m[1;24r[H[J[7m    IW   score2                     行數 1    列數 1    3:40  Ctrl-K H 線上輔助
+[m╭══╤══╦══════════════════════╦════════╮
+║等級│  1 ║小可愛 (Cutty) 超級無敵可愛的呦!![11C║ 官位： 上將軍  ║
+╟──┼──╨────╥──┬────────╥──┬─╥╨─┬──────╢
+║職業│人類魔法師	║年齡│  17歲(   0小時)║性別│男║財產│	0金幣║
+╟─┬┴─────┬─╨──┴────────╨──┴─╨──┴──────╢
+║人│力量 (14/24)│生命力(   20/   20) 靈力(  100/  100) 體力(  100/  100) ║
+║物│智力 (16/26)│技能點數( 21)	訓練點數(  0)  銀行存款([12C) ║
+║基│智慧 (13/21)│攜帶物品：ヾ數量：  3 / 20 件 ゝ重量： 40 / 320 公斤    ║
+║本│敏捷 (13/21)│目前經驗值：	  點﹐需要再[9C點升下一級[5C║
+║狀│體質 (13/21)│目前陣營：循規蹈矩的[36C║
+║況│運氣 (13/21)│目前狀態：站在地上[38C║
+╟─┴──┬───┴────────────────────────────╢
+║系統設定│ヾ生命力降至	以下自動逃跑  ゝ每頁20行暫停  ゞ擁有巨集指令║
+║	  │[64C║
+╟────┼────────────────────────────────╢
+║國家幫派│隸屬 小可愛 國 及 小可愛 幫﹐現任[31C║
+╟────┼────────────────────────────────╢
+║陣形排列│[64C║
+╟─┬──┴─────┬──────────────────────────╢
+║武│攻擊命中率(***) │攻傷吸收力(****) 防護力(*****) 你跟沒穿一樣[9C║
+║  │攻擊傷害力(***) │魔法抵抗力：水系(***) 火系(***) 雷電系(***)闇系(***)║
+║裝│魔法傷害力(***) │  龍燄(***) 音樂(***) 大地系(***)[19C║
+╟─┴──┬─────┴──────────────────────────╢[H
+[2;24r[24H
+
+
+[1;24r[1;42H[7m4[22H[m║法術效應│[64C║
+╰════╧════════════════════════════════╯[H
+[22B
+檔案： score2 並未改變所以不需要更新資料.
+[[1;32mpaul[0m] [1;33mmud[0m:~/mud/doc$ rm score2
+[[1;32mpaul[0m] [1;33mmud[0m:~/mud/doc$ ls
+MOBProgram.txt	data12		data4		hacker.txt	security.txt
+act.txt		data13		data5		license.doc	sites.txt
+area.txt	data14		data6		license.txt	skill.bak
+class.txt	data15		data7		memory.txt	skill.txt
+command.txt	data16		data8		new.txt		sky.txt
+contrib.txt	data17		data9		pfile.txt	srcfix.txt
+data1		data18		dico-1		port.txt	trad.txt
+data10		data2		dico-2		room.c		typescript
+data11		data3		drool.txt	script.c	vnum.txt
+[[1;32mpaul[0m] [1;33mmud[0m:~/mud/doc$ ls
+MOBProgram.txt	data12		data4		hacker.txt	security.txt
+act.txt		data13		data5		license.doc	sites.txt
+area.txt	data14		data6		license.txt	skill.bak
+class.txt	data15		data7		memory.txt	skill.txt
+command.txt	data16		data8		new.txt		sky.txt
+contrib.txt	data17		data9		pfile.txt	srcfix.txt
+data1		data18		dico-1		port.txt	trad.txt
+data10		data2		dico-2		room.c		typescript
+data11		data3		drool.txt	script.c	vnum.txt
+[[1;32mpaul[0m] [1;33mmud[0m:~/mud/doc$ ls
+MOBProgram.txt	data12		data4		hacker.txt	security.txt
+act.txt		data13		data5		license.doc	sites.txt
+area.txt	data14		data6		license.txt	skill.bak
+class.txt	data15		data7		memory.txt	skill.txt
+command.txt	data16		data8		new.txt		sky.txt
+contrib.txt	data17		data9		pfile.txt	srcfix.txt
+data1		data18		dico-1		port.txt	trad.txt
+data10		data2		dico-2		room.c		typescript
+data11		data3		drool.txt	script.c	vnum.txt
+[[1;32mpaul[0m] [1;33mmud[0m:~/mud/doc$ v
+bash: v: command not found
+[[1;32mpaul[0m] [1;33mmud[0m:~/mud/doc$ exit
+exit
+
+Script done on Tue Nov 17 15:40:50 1998

@@ -1,0 +1,887 @@
+
+一、檔案位置﹕
+
+所有在 <區域>/obj/ 目錄底下的 *.obj 檔案都是物品檔案﹐而所有
+的物品就是由這些檔案所組成。
+
+二、格式﹕
+
+*               /* 任何有 * 開頭的這一行是註解﹐系統不會讀入 */
+Vnum            <數值>
+Name            <字串>~
+ShortDesc       <字串>~
+LongDesc        <字串>~
+Description
+<字串>
+~
+Unit            <字串>~
+ItemType        <數值或字串常數>
+<物品額外旗標>  Yes
+<物品穿戴旗標>  Yes
+WearLoc         <數值或字串常數>
+Level           <數值>
+Value           <數值> <數值> .... <數值> ( 最多 15 個. )
+或是可以使用
+Value0          <數值>
+Value1          <數值>
+...
+Value14         <數值>
+Weight          <數值>
+Cost            <數值>
+Exp             <數值>
+Armor           <數值>
+Disappear       <數值或字串常數>
+
+#Affect
+Location        <數值或字串常數>
+Modifier        <數值>  /* 你也可以使用 Value 來代替 Modifier 這個關鍵字。*/
+Value           <數值>
+End
+
+#Extra
+*               /* 任何有 * 開頭的這一行是註解﹐系統不會讀入 */
+Keyword         <字串>~
+Description
+<字串>~
+End
+
+#Job
+*               /* 任何有 * 開頭的這一行是註解﹐系統不會讀入 */
+Keyword         <字串>~
+Function        <字串>~
+Position        <數值>
+End
+
+#Restrict
+*               /* 任何有 * 開頭的這一行是註解﹐系統不會讀入 */
+Type            <數值>
+Occassion       <數值>
+Skill           '<字串>'
+Value           <數值>
+ViceValue       <數值>
+End
+
+#Message
+*               /* 任何有 * 開頭的這一行是註解﹐系統不會讀入 */
+Type            <數值或字串常數>
+String
+<字串>
+~
+Self
+<字串>
+~
+Others
+<字串>
+~
+End
+
+End             /* 代表物品檔案的結束 */
+
+三、範例﹕
+
+#OBJECT
+Vnum            300
+Name            sword~
+ShortDesc       黑鐵劍(sword)~
+Description
+一把由黑鐵打造的長劍(sword)。
+~
+Wearnsg
+.               天下為公
+~
+Unit            把~
+ItemType        ITEM_WEAPON
+Glow            Yes
+Hum             Yes
+Takeable        Yes
+WearLoc         ITEM_WEAR_HANDS
+Level           1
+Value           10 20 0 WEAPON_SWORD
+Weight          20
+Exp             150
+Cost            1000
+
+#Affect
+Location        APPLY_STR
+Modifier        1
+End
+
+#Extra
+Keyword         head~
+Description
+看看它的劍頭就知道死在它手下的人不少吧﹗
+~
+End
+
+#Restrict
+Type            RES_SKILL
+Value           SLOT_NONAME
+ViceValue       30
+End
+
+End
+
+四、說明﹕
+
+(1) Vnum (物品號碼)﹕
+  代表這個物品的虛擬號碼﹐這個選項不能被省略的﹐而且物品號碼
+  一定要是數字﹐且不可以小於 0﹐至於號碼的分配最好和區域裡的
+  房間號碼來對照﹐因為這樣比較方便清楚看出是哪一個區域的物品。
+
+  PS﹕物品與物品之間的號碼不可以相同﹐與區域或是怪物所用的號
+      碼則可以重複。
+
+(2) Name (物品英文名稱)﹕
+  代表物品的英文名字﹐他是代表物品的最短名字﹐所有的動作都和
+  這個名字有關﹐請以字串結束符號( ~ ) 結束﹐這個選項不可以被
+  忽略﹐這一個字串最好是英文﹐因為若不是英文會照成玩家的不便。
+
+(3) ShortDesc (物品中文描述)﹕
+  這個字就是當你觀看自己或是別人身上攜帶的物品時所顯示的簡短
+  敘述﹐他也在程式裡 act  函數和其他函數當作辨識物品所用到的
+  字串﹐請以字串結束符號( ~ ) 結束。這個選項是不可以被忽略﹐
+  這一個字串最好可以包含 Name 字串裡面的英文名字﹐這樣對於辨
+  識上比較方便。
+
+(4) LongDesc (物品長敘述)﹕
+  這個是設定物品的長敘述﹐不過目前並未使用﹐沒有寫也沒有關係。
+
+(5) Description (物品描述)﹕
+  若是某一個人物進入一個房間的時候﹐而且這個人可以看到這樣物
+  品的話﹐那麼就會顯示出這一段訊息﹐因為考慮到對齊﹐所以是從
+  這個關鍵字下一行開始撰寫﹐上一行所有的東西都將被忽略﹐請以
+  字串結束符號( ~ ) 結束﹐這個選項不可以被忽略﹐這一個字串最
+  好可以包含 Name 字串裡面的英文名字﹐這樣對於辨識上比較方便。
+
+(6) Unit (物品單位)﹕
+  這個字串是代表這個物品的單位﹐例如說一個饅頭﹐一把長劍等等
+  ﹐如果你沒有寫的話﹐預設是以個為基本單位。
+
+(7) ItemType (物品型態)﹕
+
+  □燈籠(ITEM_LIGHT)                    1
+  □卷軸(ITEM_SCROLL)                   2
+  □法杖可以當作攻擊工具(ITEM_WAND)     3
+  □法器不可以當作攻擊武器(ITEM_STAFF)  4
+  □武器(ITEM_WEAPON)                   5
+  □寶物(ITEM_TREASURE)                 6
+  □防具(ITEM_ARMOR)                    7
+  □藥水(ITEM_POTION)                   8
+  □家具(ITEM_FURNITURE)                9
+  □垃圾(ITEM_TRASH)                   10
+  □容器(ITEM_CONTAINER)               11
+  □裝水容器(ITEM_DRINK_CON)           12
+  □鑰匙(ITEM_KEY)                     13
+  □食物(ITEM_FOOD)                    14
+  □金錢(ITEM_MONEY)                   15
+  □船(ITEM_BOAT)                      16
+  □非玩家的屍體(ITEM_CORPSE_NPC)      17
+  □玩家的屍體(ITEM_CORPSE_PC)         18
+  □泉水(ITEM_FOUNTAIN)                19
+  □藥丸(ITEM_PILL)                    20
+  □魔石(ITEM_MAGICSTONE)              21
+  □精靈石(ITEM_SPIRITJADE)            22
+  □秘笈(ITEM_BOOK)                    23
+  □信件(ITEM_LETTER)                  24
+  □礦石(ITEM_ORE)                     25
+  □聚寶盆(ITEM_GOLDMINE)              26
+  □符咒(ITEM_SIGIL)                   27
+  □羊皮紙(ITEM_VELLUM)                28
+  □煙火(ITEM_FIREWORK)                29
+  □煉妖壺(ITEM_URN)                   30
+  □弓箭袋(ITEM_BACKBAG)               31
+  □箭(ITEM_ARROW)                     32
+
+  代表這個物品的種類﹐這個是一個數字﹐你可以用上述的字串常數
+  來定義﹐這個選項不可以被省略﹐所以這一個是沒有內定值的﹐為
+  了之後除錯的方便﹐請使用字串常數。
+
+(8) 物品額外旗標﹕
+
+  □閃閃發光(Glow)                      1
+  □嗡嗡作響(Hum)                       2
+  □黑暗(Dark)                          4
+  □保留(Lock)                          8
+  □邪惡(Evil)                         16
+  □隱形(Invis)                        32
+  □魔法(Magic)                        64
+  □不可丟棄(NoDrop)                  128
+  □祝福(Bless)                       256
+  □抗善良陣營(AntiGood)              512
+  □抗邪惡陣營(AntiEvil)             1024
+  □抗中立陣營(AntiNeutral)          2048
+  □不可解除裝備(NoRemove)           4096
+  □死後消失(Inventory)              8192
+  □可以封印魔石(Cancachet)         16384
+  □自設數值(Userset)               32768
+  □不儲存(NoSave)                  65536
+  □違禁品(Contraband)             131072
+  □可裝填(Loadable)               262144
+
+  代表這個物品的詳細的屬性設定﹐這個是一個數字﹐這一個選項可
+  以交叉使用﹐也就是說你可以有兩個以上的數字來完整表示這樣物
+  品﹐不過這些數字你必需使用( | ) 來連接﹐你可以用下列的字串
+  常數來定義﹐這個選項可以被省略﹐內定值是都沒有﹐就是 0﹐這
+  一個數值要特別小心﹐否則例如亂設定 ITEM_NODROP  會照成玩家
+  的抱怨。
+
+  個別說明如下﹕
+
+  □閃閃發光(Glow)﹕
+      若物品有這個旗標的話﹐會在物品前面附上 (閃閃發亮) 的符
+      號。
+
+  □嗡嗡作響(Hum)﹕
+      若物品有附上這個旗標﹐會在物品前面加上 (嗡嗡作響) 的符
+      號﹐這個要小心使用﹐不然到時候會出現嗡嗡作響的饅頭。
+
+  □黑暗(Dark)﹕
+  □保留(Lock)﹕
+      這兩個旗標目前保留﹐不使用。
+
+  □邪惡(Evil)﹕
+      這個旗標讓這個物品是邪惡的﹐並且用偵測邪惡的法術可以看
+      出。
+
+  □隱形(Invis)﹕
+      這個旗標使得這個物品隱形﹐平常是看不到的﹐也不能裝備脫
+      掉等等﹐要使用偵測隱形的法術才可以看到。
+
+  □魔法(Magic)﹕
+      表示這個東西是魔法物品﹐即附有魔法的物品。
+
+  □不可丟棄(NoDrop)﹕
+      設定這個物品不可以丟棄﹐當然連一些拍賣﹐或是賣掉都不行。
+
+  □祝福(Bless)﹕
+      表示這個物品有受過祝福。
+
+  □抗善良陣營(AntiGood)﹕
+      設定這個物品善良陣營的人不能裝備﹐所謂善良陣營就是陣營
+      在 +300 以上的人。
+
+  □抗邪惡陣營(AntiEvil)﹕
+      設定這個裝備邪惡陣營的人無法裝備﹐邪惡陣營就是陣營在
+      -300  以下的人。
+
+  □抗中立陣營(AntiNeutral)﹕
+      這個旗標設定這個裝備讓中立陣營的人無法裝備﹐中立陣營是
+      陣營值在 +300 到 -300 之間的人。
+
+  □不可解除裝備(NoRemove)﹕
+      設定這個裝備如果裝備上去的話沒有辦法停止裝備。
+
+  □死後消失(Inventory)﹕
+      如果物品有設定這個旗標的話﹐當主人死掉這一項物品便會消
+      失﹐一般來說﹐商店的物品都已經自動設定這一個旗標了。
+
+  □可以封印魔石(Cancachet)﹕
+      設定這一個裝備可以封印住魔石﹐不過如果這物品不是可以裝
+      備的話也是不能封印的。
+
+  □自設數值(Userset)﹕
+      這個旗標目前不使用﹐如果想要給系統設定攻擊傷害或是防禦
+      力的話﹐請將該項數值設為小於零即可。
+
+  □不儲存(NoSave)﹕
+      如果設定這個旗標的話﹐這個物品不會被儲存在檔案裡﹐像是
+      一些鑰匙或是覺得不要馬上開放的東西﹐便可以設定這個旗標
+      ﹐等待已經可以開放的時候﹐在將這個旗標拔除即可。
+
+  □違禁品(Contraband)﹕
+      這個旗標設定這個物品是武鬥大會的違禁品﹐即在武鬥大會之
+      前會沒收的物品﹐如果你覺得這個物品會影響到武鬥大會的公
+      平性﹐你便可以加入這個旗標﹐但是請注意﹐不要亂加﹐還有
+      藥水或藥丸類一律加入。
+
+  □可裝填(Loadable)﹕
+      這個旗標設定這個物品是可以裝填的，例如像弓箭袋一類的東
+      西，弓箭袋可裝填箭支。
+
+(9) 物品穿戴旗標﹕
+
+  □可拿(Takeable)                      1
+
+  若有這個旗標
+
+      Takeable       Yes
+
+  代表這個物品是可以被玩家拿在手上的。
+
+(10) WearLoc (物品裝備位置)﹕
+
+  □穿在手指(ITEM_WEAR_FINGER)          2
+  □戴在脖子(ITEM_WEAR_NECK)            4
+  □穿在身上(ITEM_WEAR_BODY)            8
+  □戴在頭上(ITEM_WEAR_HEAD)           16
+  □穿在腿上(ITEM_WEAR_LEGS)           32
+  □穿在腳上(ITEM_WEAR_FEET)           64
+  □穿在手上(ITEM_WEAR_HANDS)         128
+  □穿在手臂上(ITEM_WEAR_ARMS)        256
+  □盾牌類(ITEM_WEAR_SHIELD)          512
+  □穿在背上(ITEM_WEAR_ABOUT)        1024
+  □戴在腰部(ITEM_WEAR_WAIST)        2048
+  □戴在手腕(ITEM_WEAR_WRIST)        4096
+  □裝備在手上(ITEM_WIELD)           8192
+  □握在手上(ITEM_HOLD)             16384
+  □裝在耳朵(ITEM_WEAR_EARRING)     32768
+  □背著背袋(ITEM_WEAR_BACK)        65536
+  □照明用具(ITEM_WEAR_LIGHT)      131072
+
+  代表這個物品應該要被穿在哪一個地方﹐這個是一個數字﹐你可以
+  用上述的字串常數來定義﹐這個選項可以被省略﹐內定值是都沒有
+  ﹐就是 0。
+
+(11) Weight (物品重量)﹕
+  代表這個物品的重量﹐這是一個數字﹐可以被省略不寫﹐內定值是
+   1﹐一般來說﹐盔甲類物品要比較重一點﹐像耳環或是戒指請設輕
+  一點。
+
+(12) Cost (物品價格)﹕
+  代表這個物品的價值﹐這個數值和你賣物或是或是拍賣這樣物品時
+  有很大的關係﹐你可以省略這個選項﹐系統的內定值是這樣物品的
+  等級乘以十。
+
+(13) Level (物品等級)﹕
+  代表這個物品的等級﹐這是一個數字﹐可以被省略不寫﹐內定值是
+   1。
+
+(14) Value (物品數值)﹕
+  代表這個物品的真正所代表的數值﹐你最多可以輸入15個數值﹐超
+  過的系統會忽略不算﹐你可以不必全部輸入﹐沒有輸入的系統內定
+  為 0﹐你也可以相對使用 Value1 到 Value15來個別輸入所代表的
+  數值﹐而這些數值所代表的意義和物品的種類是有關的﹐所有數值
+  所代表的意義列在下面。
+
+  □燈籠(ITEM_LIGHT)﹕
+      ☆Value3﹕光源可以使用的時間﹐0 是不能用﹐-1  是永遠用
+                不完。
+      ●其餘的數值都沒有使用到。
+
+  □卷軸(ITEM_SCROLL)﹕
+  □藥水(ITEM_POTION)﹕
+  □藥丸(ITEM_PILL)﹕
+      ☆Value1﹕影響數值(可以大於或小於零)。
+      ☆Value2﹕影響類別﹐類別如下﹕
+          OBJ_CAST_HIT            1 (加生命力)
+          OBJ_CAST_MANA           2 (加法力)
+          OBJ_CAST_MOVE           3 (加體力)
+          OBJ_CAST_IDENT          4 (鑑定用)
+      ●其餘的數值都沒有使用到。
+
+  □法杖可以當作攻擊工具(ITEM_WAND)﹕
+  □法器不可以當作攻擊武器(ITEM_STAFF)﹕
+      ☆Value1﹕法術等級。
+      ☆Value2﹕最多可以有幾發。
+      ☆Value3﹕目前有幾發。
+      ☆Value4﹕法術的號碼。
+      ●其餘的數值都沒有使用到.
+
+  □武器(ITEM_WEAPON)﹕
+      ☆Value1﹕傷害力的最小值﹐設定 -1 表示由系統自訂。
+      ☆Value2﹕傷害力的最大值﹐設定 -1 表示由系統自訂。
+      ☆Value3﹕武器種類﹐選項如下﹕
+          WEAPON_HAND      1 拳掌
+          WEAPON_DAGGER    2 短兵
+          WEAPON_SWORD     3 長劍
+          WEAPON_BLADE     4 大刀
+          WEAPON_AXE       5 斧
+          WEAPON_WHIP      6 鞭
+          WEAPON_SPEAR     7 槍茅
+          WEAPON_PEN       8 筆扇
+          WEAPON_HAMMER    9 鎚
+          WEAPON_CLUB     10 棍棒
+          WEAPON_BOW      11 弓
+          WEAPON_FORCE    12 氣
+      ●其餘的數值都沒有使用到。
+
+  □寶物(ITEM_TREASURE)﹕
+  □家具(ITEM_FURNITURE)﹕
+  □鑰匙(ITEM_KEY)﹕
+  □垃圾(ITEM_TRASH)﹕
+  □船(ITEM_BOAT)﹕
+  □非玩家的屍體(ITEM_CORPSE_NPC)﹕
+  □泉水(ITEM_FOUNTAIN)﹕
+  □玩家的屍體(ITEM_CORPSE_PC)﹕
+      ●所有的數值都沒有使用到。
+
+  □防具(ITEM_ARMOR)﹕
+      ☆Value0﹕防具防護的等級﹐如果設定 -1 則由系統自動給予
+        ﹐標準是每二十級加一個防護等級﹐所以如果你自己設定防
+        護等級的話﹐請勿超過這個範圍太多。
+      ●其餘的數值都沒有使用到。
+
+  □容器(ITEM_CONTAINER)﹕
+      ☆Value1﹕可以放置的重量。
+      ☆Value2﹕容器的狀態﹐可以設定的狀態如下﹕
+          CON_CAN_OPEN      1     可以開關的.
+          CON_UNPICKED      2     無法撬開的.
+          CON_CLOSE         4     關著的.
+          CON_LOCKED        8     鎖著的.
+      ☆Value3﹕鑰匙的號碼。
+      ●其餘的數值都沒有使用到.
+
+  □裝水容器(ITEM_DRINK_CON)﹕
+      ☆Value1﹕可以裝的容量。
+      ☆Value2﹕目前的容量。
+      ☆Value3﹕液體的號碼﹐種類如下﹕
+          LIQ_WATER               1 (水)
+          LIQ_SHAOHING            2 (紹興)
+          LIQ_MILK                3 (牛奶)
+          LIQ_TEA                 4 (茶)
+          LIQ_BLOOD               5 (血)
+          LIQ_BRINE               6 (鹽水)
+          LIQ_BAMBOO              7 (竹業青)
+      ☆Value4﹕若不是 0 就是有毒的。
+      ●其餘的數值都沒有使用到。
+
+  □食物(ITEM_FOOD)
+      ☆Value0﹕有效期限﹐會隨著時間遞減﹐最後物品會消失。如
+          果不想要食物會消失﹐請設為 ( -1 ) 。
+      ☆Value1﹕現有次數﹐即食物的數量。
+      ☆Value2﹕一口食量﹐即設定一次扣多少點數量﹐增加人物多
+          少點飽足感。
+      ☆Value3﹕是否有毒﹐若不是零就是有讀﹐毒害的時間以 Value0
+          決定。
+      ☆Value4﹕產生物品﹐這個數字設定當你吃完這個東西會出現
+          的東西﹐若是零就沒有。
+      ●其餘的數值都沒有使用到.
+
+  □金錢(ITEM_MONEY)﹕
+      ☆Value1﹕錢的數量。
+      ●其餘的數值都沒有使用到.
+  □煙火(ITEM_FIREWORK)
+  □煉妖壺(ITEM_URN)
+  □弓箭袋(ITEM_BACKBAG)
+  □箭(ITEM_ARROW)
+
+
+(14) Disappear (物品是否會消失)﹕
+  YES               1        是
+  NO                0        否
+
+  此參數設定這個物品在一些丟棄的情況下是否會消失﹐妳可以用字
+  串常數來代替數字﹐當你設定物品會消失( YES ) 的時候﹐當這個
+  物品被丟棄( drop  ) 到地上的時候便會消失掉。
+
+(15) Armor (物品強度)﹕
+  這數值設定這項裝備的強度﹐可以抵抗多少的攻擊﹐當然如果不是
+  裝備的話這一項數值是沒有用的﹐如果妳沒有給定的話系統會有預
+  設﹐如果妳要自行設定的話﹐你可以設定為等級的一百倍即可。
+
+(16) Exp (物品升級經驗)﹕
+  這一項數值設定物品是否可以升級與升級的經驗值﹐以一萬為準﹐
+  只有武器或是防具可以升級﹐要升級的話必須設定此項數值﹐請勿
+  設定太高﹐以三百為限﹐即物品的升級經驗值以萬分之三百為限制
+  ﹐若是超過會變的非常容易升級。
+
+(17) #Affect (物品效應)﹕
+  代表這樣物品可改變玩家屬性或是可以改變其他特殊的地方﹐當然
+  你可以省略這項選項﹐以代表這樣物品並不會改變任何屬性﹐他可
+  以有兩樣選項﹐如果你有使用這個選項﹐你必須多加一個 End  以
+  代表這個選項的結束﹐還有一個重點就是你要增加的數值一定要依
+  據另一篇文章所設定的條件去給予﹐不可以超過設定﹗
+
+  ○Location (改變的種類)﹕
+      不改變(APPLY_NONE)                     0
+      改變力量(APPLY_STR)                    1
+      改變敏捷(APPLY_DEX)                    2
+      改變智力(APPLY_INT)                    3
+      改變學識(APPLY_WIS)                    4
+      改變體格(APPLY_CON)                    5
+      改變性別(APPLY_SEX)                    6
+      改變職業(APPLY_CLASS)                  7
+      改變等級(APPLY_LEVEL)                  8
+      改變年齡(APPLY_AGE)                    9
+      改變高度(APPLY_HEIGHT)                10
+      改變重量(APPLY_WEIGHT)                11
+      改變法力(APPLY_MANA)                  12
+      改變生命(APPLY_HIT)　                 13
+      改變移動力(APPLY_MOVE)                14
+      改變金錢(APPLY_GOLD)                  15
+      改變經驗值(APPLY_EXP)                 16
+      改變防禦力(APPLY_AC)                  17
+      改變命中率(APPLY_HITROLL)             18
+      改變傷害力(APPLY_DAMROLL)             19
+      改變痲痹閃躲率(APPLY_SAVING_PARA)     20
+      改變懲罰閃躲率(APPLY_SAVING_ROD)      21
+      改變石化閃躲率(APPLY_SAVING_PETRI)    22
+      改變龍氣閃躲率(APPLY_SAVING_BREATH)   23
+      改變法術閃躲率(APPLY_SAVING_SPELL)    24
+
+  這項數值代表改變的地方﹐這是一個數值﹐你不可以省略這個選項
+  ﹐假如你有選 #Affect  這個選項的話﹐它的數值可以使用上述的
+  字串常數來代替。
+
+  ○Modifier (改變的數值)﹕
+  此項數值代表所改變的數值﹐它是一個數值﹐你不可以省略這個選
+  項﹐假如你有選 #Affect  這個選項的話﹐你也可以使用 Value
+  這一個識別字﹐假如你覺得 Modifier 這個單字不好記的話。改變
+  的數值不一定要是正整數﹐也可以是負數﹐這裡的改變數值請依照
+  本文件之後的範圍作設定﹗
+
+(18) #Extra (物品額外關鍵字)﹕
+  表示這樣物品一段額外的關鍵字﹐和房間的關鍵字是一樣的﹐你在
+  這樣物品的所在房間執行 look 這個關鍵字時﹐你可以看到這一段
+  額外描述﹐假設有一個物品是書本﹐你可以設定一個額外關鍵字(
+  例如是 page 100 ) ﹐當你在這本書本所在的房間裡, 執行 look page 100
+  系統會幫你送出這一段額外描述﹐當然你可以忽略這一個選項﹐如
+  果你有設定這一個識別字時﹐你必須要有下列兩個選項﹐而且你必
+  須多加一個 End  來代表這個 #Extra 結束﹐系統並不限定一個物
+  品可以有幾個額外描述﹐下面是它所有的兩個選項。
+
+  ○Keyword (關鍵字)﹕
+      就是這間房間裡面可以看到物品的關鍵字﹐換句話說﹐你可以
+      在這間房間裡面 look 這個關鍵字﹐請以字串結束符號( ~ )
+      結束。
+
+  ○Description (描述)﹕
+      就是上述 look 這個關鍵字時所出現完整的描述﹐這個敘述因
+      為考慮到對齊﹐所以是從這個關鍵字下一行開始撰寫﹐上一行
+      所有的東西都將被忽略﹐請以字串結束符號( ~ ) 結束。
+
+(19) #Job (特殊觸發方面)﹕
+  1.Keyword (關鍵字)﹕
+      這個物品做特殊的動作時所觸發程式的關鍵命令﹐如果命令對
+      了﹐方會去執行功能部份﹐這個部份要以字串結束符號結尾。
+
+  2.Function (功能函數名稱)﹕
+      這個是真正使用到的功能名稱﹐這個功能必須在程式中( job.c )
+      有定義過方能使用﹐類似怪物的特殊函式的功能﹐一樣以字串
+      結束符號結束。
+
+  3.Position (最低狀態)﹕
+      POS_DEAD                0 (死亡)
+      POS_SLEEPING            1 (睡覺)
+      POS_RESTING             2 (休息)
+      POS_FIGHTING            3 (打架)
+      POS_STANDING            4 (站立)
+
+      定義使用這個特殊函式時所需的最低狀態﹐一般為 POS_STANDING
+      ( 站立 )﹐其餘如上所示。
+
+  4.以上 Keyword 跟 Function 如果有 #Job 都必須存在。
+
+  5.以 End 代表結束。
+
+(20) #Restrict (物品裝備限制)﹕
+  1. Type (限制類型)﹕
+      □RES_STR(限制力量)                 1
+      □RES_INT(限制智力)                 2
+      □RES_WIS(限制學識)                 3
+      □RES_DEX(限制敏捷)                 4
+      □RES_CON(限制體格)                 5
+      □RES_HP(限制生命力)                6
+      □RES_MANA(限制法力)                7
+      □RES_MOVE(限制體力)                8
+      □RES_CLASS(限制職業)               9
+      □RES_TRUST(限制信任值)            10
+      □RES_SKILL(限制技能)              11
+      □RES_SEX(限制性別)                12
+      □RES_LEVEL(限制等級)              13
+
+      這一項設定這個裝備或是武器裝備限制的類型﹐可以限制的種
+      類如上所示﹐當這項物品有限制的時候﹐被限制的人是裝備不
+      上的﹐例如說某項物品限制力量需要二十方能裝備﹐如果力量
+      小於二十便無法裝備。
+
+  2. Skill (限制技能名稱)﹕
+      這項設定是設定技能名稱用的﹐不過只有當你設定限制型態為
+      限制技能的話方能設定技能名稱﹐這裡技能名稱只要輸入英文
+      即可﹐而技能名稱請參照其他文件。
+
+  3. Value (限制數值)﹕
+      RES_DEMOS               1    限制為平民
+      RES_SCHOLAR             2    限制為文官
+      RES_FIGHTER             4    限制為武官
+      RES_SHAMAN              8    限制為道士
+      RES_THIEF               16   限制為小偷
+      RES_DOCTOR              32   限制為醫生
+      RES_BARD                64   限制為伶人
+      RES_GENERAL             128  限制為將軍
+      RES_BRAVO               256  限制為刺客
+      RES_MAGE                512  限制為天師
+      RES_SMITH               1024 限制為鑄劍師
+
+      這一項設定限制的最低值或是數值﹐就限制力量或是一些限制
+      屬性的來說﹐這一項是設定所限制的最低值﹐像是限制職業的
+      話﹐則是限制某一項職業方能裝備﹐職業如上所示﹐你也可以
+      用 Class  這個選向來代替 Value  這個關鍵字﹐當你使用類
+      型為 RES_CLASS  的時候﹐另外這一些數值可以重複﹐只要用
+      | 符號連貫即可﹐便可以限制兩種以上的職業﹐如果是限制性
+      別的話﹐可以限制的字串如下﹐而其他的便可以直接填入數值
+      就可以了。
+
+      SEX_NEUTRAL(中性)                   0
+      SEX_MALE(男性)                      1
+      SEX_FEMALE(女性)                    2
+
+  4. ViceValue (第二數值)﹕
+      這一項數值設定技能最低的數值﹐專門給技能使用﹐用來設定
+      技能熟練度。
+
+  5. 這一項 #Restrict 以 End 做結束。
+
+(21) #Message (物品觸發敘述)﹕
+  此項用來增加物品的特殊表現﹐讓你在對物品做動作時可以有特殊
+  的敘述﹐可以算是 Remmsg 與 Wearmsg  的加強版。
+
+    1. Type (觸發類型)﹕
+        ACT_WHEN_EAT                    1  (吃)
+        ACT_WHEN_WEAR                   2  (裝備)
+        ACT_WHEN_DROP                   3  (丟棄)
+        ACT_WHEN_REMOVE                 4  (移除裝備)
+        ACT_WHEN_SACRIFICE              5  (奉獻)
+        ACT_WHEN_GET                    6  (撿起或拿出)
+        ACT_WHEN_PUT                    7  (放置)
+        ACT_WHEN_GIVE                   8  (給予)
+        ACT_WHEN_FILL                   9  (裝滿)
+        ACT_WHEN_DRINK                  10 (喝)
+        ACT_WHEN_RECITE                 11 (使用捲軸)
+        ACT_WHEN_BUY                    12 (買)
+        ACT_WHEN_SELL                   13 (賣)
+        ACT_WHEN_VALUE                  14 (估價)
+        ACT_WHEN_LOOK                   15 (檢視)
+        ACT_WHEN_COMPARE                16 (比較)
+        ACT_WHEN_SEND                   17 (遞送)
+        ACT_WHEN_OPEN                   18 (打開)
+        ACT_WHEN_CLOSE                  19 (關上)
+        ACT_WHEN_LOCK                   20 (鎖上)
+        ACT_WHEN_UNLOCK                 21 (開鎖)
+        ACT_WHEN_AUCTION                22 (拍賣)
+        ACT_WHEN_BET                    23 (喊價)
+        ACT_WHEN_REPAIR                 24 (修理)
+        ACT_WHEN_DEPOSIT                25 (存入鏢局)
+        ACT_WHEN_WITHDRAW               26 (領出)
+        ACT_WHEN_CACHET                 27 (封印魔石)
+        ACT_WHEN_SLUP                   28 (魔石升級)
+        ACT_WHEN_STUDY                  29 (研讀)
+    你可以使用上述的字串來代表何時要顯示什麼時候要做出底下設
+    定的字串。
+
+    2. String (觸發字串)﹕
+        $t 拷貝字串一的內容.        $T 拷貝字串二的內容.
+        $n 主格                     $N 受格
+        $e 主格的你我他             $E 受格的你我他
+        $s 主格的你我他(的)         $S 受格的你我他(的)
+        $p 物品一                   $P 物品二
+        $d 參數二有關門的敘述       $A 換行
+        $$ $                        $C 顏色控制碼
+        $0 還原顏色                 $1 高亮度紅色
+        $2 高亮度綠色               $3 高亮度黃色
+        $4 高亮度藍色               $5 高亮度紫色
+        $6 高亮度天空色             $7 高亮度白色
+        $z 人物的英文名稱           $Z 人物的英文名稱
+        $B 鈴聲
+
+    以上列出所有可以使用的參數﹐在你寫 String 或是 Self 等等
+    字串中可以使用﹐但請注意不要寫錯﹐如果不會使用請將問題寫
+    在版上詢問﹐確定無誤之後方可以使用﹐以免找不到問題。
+    在 String 這個部份就是欲顯示的字串﹐ String 顯示是兩邊都
+    可以看到的( 如果是給予等等指令的話 )﹐也可以用底下的 Self
+    或是 Other 來表示訊息要給予雙方﹐也可以使用不同的訊息。
+
+    3. Self (給予使用方的訊息)﹕
+    這個跟上述 String 一樣﹐不過是專門給予使用者方的訊息﹐你
+    如果使用了 String 的話便不要再使用 Self 跟 Other ﹐ 不過
+    Self 跟 Other 可以同時使用﹐分別代表不同人所得到的訊息。
+
+    4. Others (使用對象的訊息)﹕
+    此訊息就是你使用對象所可以獲得的訊息﹐請注意﹐這個一定要
+    有使用對象﹐不然會有錯誤﹗
+
+    5. 這個 # Message 以 End 結束。
+
+◎  整個敘述以 End結束.
+◎  所有關鍵字不必按照上述的順序排列﹐不過當你有輸入 #Affect
+    或 #Extra #Job #Restrict #Message 這四個關鍵字時﹐你必須
+    要在之前就得輸入物品的號碼﹐否則系統會出現錯誤﹐而無法執
+    行。
+◎  整個物品的檔案敘述不一定要有 #Etra 和 #Affect #Job #Restrict
+    #Message 這幾個選項。
+◎  為了以後除錯方便﹐請多用字串常數來代替常數﹐所有的字串常
+    數定義在/home/mud/area/symbol.def 裡面。
+
+四、附註:
+(1) 相關字串定義﹕
+
+* 物品種類
+
+ITEM_LIGHT                      1
+ITEM_SCROLL                     2
+ITEM_WAND                       3
+ITEM_STAFF                      4
+ITEM_WEAPON                     5
+ITEM_TREASURE                   6
+ITEM_ARMOR                      7
+ITEM_POTION                     8
+ITEM_FURNITURE                  9
+ITEM_TRASH                     10
+ITEM_CONTAINER                 11
+ITEM_DRINK_CON                 12
+ITEM_KEY                       13
+ITEM_FOOD                      14
+ITEM_MONEY                     15
+ITEM_BOAT                      16
+ITEM_CORPSE_NPC                17
+ITEM_CORPSE_PC                 18
+ITEM_FOUNTAIN                  19
+ITEM_PILL                      20
+ITEM_MAGICSTONE                21
+ITEM_SPIRITJADE                22
+ITEM_BOOK                      23
+ITEM_LETTER                    24
+ITEM_ORE                       25
+ITEM_GOLDMINE                  26
+ITEM_SIGIL                     27
+ITEM_VELLUM                    28
+ITEM_FIREWORK                  29
+ITEM_URN                       30
+ITEM_BACKBAG                   31
+ITEM_ARROW                     32
+
+
+* 武器的形態
+
+WEAPON_ALL              65535
+WEAPON_HAND             1
+WEAPON_DAGGER           2
+WEAPON_SWORD            3
+WEAPON_BLADE            4
+WEAPON_AXE              5
+WEAPON_WHIP             6
+WEAPON_SPEAR            7
+WEAPON_PEN              8
+WEAPON_HAMMER           9
+WEAPON_CLUB             10
+WEAPON_BOW              11
+WEAPON_FORCE            12
+
+* 物品的屬性
+
+ITEM_GLOW                       1
+ITEM_HUM                        2
+ITEM_DARK                       4
+ITEM_LOCK                       8
+ITEM_EVIL                      16
+ITEM_INVIS                     32
+ITEM_MAGIC                     64
+ITEM_NODROP                   128
+ITEM_BLESS                    256
+ITEM_ANTI_GOOD                512
+ITEM_ANTI_EVIL               1024
+ITEM_ANTI_NEUTRAL            2048
+ITEM_NOREMOVE                4096
+ITEM_INVENTORY               8192
+ITEM_CANCACHET              16384
+ITEM_USERSET                32768
+ITEM_NOSAVE                 65536
+ITEM_CONTRABAND            131072
+ITEM_LOADABLE              262144
+
+* 物品的穿戴旗標
+
+ITEM_NOT_TAKE                   0
+ITEM_TAKE                       1
+ITEM_WEAR_FINGER                2
+ITEM_WEAR_NECK                  4
+ITEM_WEAR_BODY                  8
+ITEM_WEAR_HEAD                 16
+ITEM_WEAR_LEGS                 32
+ITEM_WEAR_FEET                 64
+ITEM_WEAR_HANDS               128
+ITEM_WEAR_ARMS                256
+ITEM_WEAR_SHIELD              512
+ITEM_WEAR_ABOUT              1024
+ITEM_WEAR_WAIST              2048
+ITEM_WEAR_WRIST              4096
+ITEM_WIELD                   8192
+ITEM_HOLD                   16384
+ITEM_WEAR_EARRING           32768
+ITEM_WEAR_BACK              65536
+ITEM_WEAR_LIGHT            131072
+ITEM_ALL_ARMOR              40958
+ITEM_ALL_REPAIR             49150
+
+* 物品的穿戴位置
+
+WEAR_NONE                      -1
+WEAR_LIGHT                      0
+WEAR_FINGER_L                   1
+WEAR_FINGER_R                   2
+WEAR_NECK_1                     3
+WEAR_NECK_2                     4
+WEAR_BODY                       5
+WEAR_HEAD                       6
+WEAR_LEGS                       7
+WEAR_FEET                       8
+WEAR_HANDS                      9
+WEAR_ARMS                      10
+WEAR_SHIELD                    11
+WEAR_ABOUT                     12
+WEAR_WAIST                     13
+WEAR_WRIST_L                   14
+WEAR_WRIST_R                   15
+WEAR_WIELD                     16
+WEAR_HOLD                      17
+WEAR_EARRING_L                 18
+WEAR_EARRING_R                 19
+
+* 影響屬性的項目
+
+APPLY_NONE                       0
+APPLY_STR                        1
+APPLY_DEX                        2
+APPLY_INT                        3
+APPLY_WIS                        4
+APPLY_CON                        5
+APPLY_SEX                        6
+APPLY_CLASS                      7
+APPLY_LEVEL                      8
+APPLY_AGE                        9
+APPLY_HEIGHT                    10
+APPLY_WEIGHT                    11
+APPLY_MANA                      12
+APPLY_HIT                       13
+APPLY_MOVE                      14
+APPLY_GOLD                      15
+APPLY_EXP                       16
+APPLY_AC                        17
+APPLY_HITROLL                   18
+APPLY_DAMROLL                   19
+APPLY_SAVING_PARA               20
+APPLY_SAVING_ROD                21
+APPLY_SAVING_PETRI              22
+APPLY_SAVING_BREATH             23
+APPLY_SAVING_SPELL              24
+
+* 藥水等物品之改變類型
+
+OBJ_CAST_HIT            1
+OBJ_CAST_MANA           2
+OBJ_CAST_MOVE           3
+OBJ_CAST_IDENT          4
+
+* 液體的種類
+
+LIQ_WATER               1
+LIQ_SHAOHING            2
+LIQ_MILK                3
+LIQ_TEA                 4
+LIQ_BLOOD               5
+LIQ_BRINE               6
+LIQ_BAMBOO              7
+
+* 人物狀態
+
+POS_DEAD                0
+POS_SLEEPING            1
+POS_RESTING             2
+POS_FIGHTING            3
+POS_STANDING            4
+
+(2) 檔案名稱及位置:
+
+物品檔一律放在區域的 obj 子目錄下, 檔名為 *.obj , 至於檔案
+的名稱請根據物品號碼設定, 方便尋找及除錯.
+

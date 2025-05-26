@@ -1,0 +1,1100 @@
+/* 花拳繡腿 */
+void skill_unrigid_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+  int         practice;
+  int         choice[] = { 25, 40, 55, 65, 75, 85, 90, 95, 99, 100, -1 };
+
+  PUSH_FUNCTION( "skill_unrigid_attack" );
+
+  /* 基本攻傷設定 */
+  dam = ch->damroll;
+
+  /* 獲得熟練度 */
+  practice = get_practice( ch , sn );
+
+  switch( dimemsion_position( choice, practice, TRUE ) )
+  {
+    case ERRORCODE:
+      mudlog( LOG_DEBUG, "技能 %d 的訊息設定有問題." , sn );
+      RETURN_NULL();
+
+    case 0:
+      sact( ch , victim, NULL
+        , "$n耗盡全力對$N打出軟弱的一拳, 試著讓他感覺有一點痛,"
+          " 也不知道有沒有效." );
+      damage( ch, victim, dam, sn );
+      break;
+
+    case 1:
+      sact( ch, victim, NULL
+        , "$n將心神放在腳上, 隨著散亂的步伐, 順手給予$N一擊." );
+      damage( ch, victim, dam * number_range( 1, 2 ), sn );
+      break;
+
+    case 2:
+      {
+        int choice[] = { 150 , 200, -1 };
+
+        sact( ch, victim, NULL
+          , "$n以快速的動作, 猛向$N揮拳, 不過只有兩下可以看!!" );
+        multi_damage( ch, victim, sn, dam, choice );
+        break;
+      }
+
+    case 3:
+      sact( ch, victim, NULL,
+        "$n快速的揮著拳, 一直向$N打去, 也不管有沒有打中." );
+      damage( ch, victim, dam, sn );
+      break;
+
+    case 4:
+      sact( ch, victim, NULL,
+        "$n以流暢的動作, 雙拳不停的往$N身上打去, 一瞬間,"
+        "爆出連珠砲般的聲響." );
+      damage( ch, victim, dam, sn );
+      break;
+
+    case 5: case 6:
+    case 7: case 8: case 9:
+      break;
+  }
+
+  RETURN_NULL();
+}
+
+/* 拆招卸力 */
+void skill_dodge( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = ( CHAR_DATA * ) vo;
+  int         chance;
+
+  PUSH_FUNCTION( "skill_dodge" );
+
+  /* 留個檢查函數 xxxx */
+
+  /* 計算機率 */
+  chance = IS_NPC( ch ) ? UMIN( 70, ch->level ) : ch->learn[sn] / 2;
+
+  /* 閃躲不成功 */
+  if ( number_percent() >= chance + victim->level - ch->level )
+    RETURN_NULL();
+
+  /* 閃躲成功 */
+  act( "平時苦練有成,你險險的躲過了$N的攻擊." , ch , NULL , victim , TO_VICT );
+  act( "哎呀!! $n縱身閃躲過了你的攻擊."       , ch , NULL , victim , TO_CHAR );
+  RETURN_NULL();
+}
+
+/* 劍擊 --> Added by Cutty */
+void skill_sword_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  OBJ_DATA  * obj;
+  int         dam;
+  int         practice;
+  int         choice[] = { 40, 80, 100, -1 };
+
+  PUSH_FUNCTION( "skill_sword_attack" );
+
+  /* 檢查武器 */
+  if ( !( obj = get_wield( ch ) ) ) RETURN_NULL();
+
+  /* 基本設定 */
+  if ( ch && ch->pcdata && get_wield( ch ) )
+  {
+    dam = number_range( ch->learn[sn]
+      , ch->now_str * ( ( get_wield( ch )->value[1]
+      + get_wield( ch )->value[2] ) / 2 ) );
+  }
+  else
+  {
+    if ( !IS_NPC( ch ) )
+      mudlog( LOG_DEBUG, "技能 %d 攻傷設定有問題." , sn );
+    dam = 100;
+  }
+
+  practice = get_practice( ch, sn );
+
+  /* 攻傷敘述 */
+  switch( dimemsion_position( choice, practice, TRUE ) )
+  {
+  case ERRORCODE:
+    mudlog( LOG_DEBUG, "技能 %d 的訊息設定有問題." , sn );
+    RETURN_NULL();
+
+  case 2:
+    {
+      int damage_plus[] = { 100, 150, 200, -1 };
+
+      sact( ch, victim, obj
+        , "$n以$O橫胸, 昂首遠視, 似乎進入入定之中!!\n\r"
+          "忽然眺首遠視, 眼光直逼$N, 趁其驚嚇之餘死命揮出三劍...." );
+      multi_damage( ch, victim, sn, dam, damage_plus);
+      break;
+    }
+
+  case 1:
+    sact( ch, victim, obj
+      , "$n以長久修練的武藝充斥內心, 將所憶之技巧在$O上發揮, 揮向$N!!" );
+    damage( ch , victim , dam * 2 , sn );
+    break;
+
+  case 0:
+    sact( ch, victim, obj
+      , "$n用$O對著$N奮力揮出,$N閃躲不及被畫出了一條長長的口子!!" );
+    damage( ch , victim , dam , sn );
+    break;
+  }
+
+  RETURN_NULL();
+}
+
+/* 進階劍擊 --> Added by ene , Modify by Cutty */
+void skill_sword_adv_attack( int sn, int level, CHAR_DATA * ch, void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+  int         practice;
+  int         choice[] = { 30, 60, 80, 90, 100, -1 };
+
+  PUSH_FUNCTION( "skill_sword_adv_attack" );
+
+  /* 基本設定 */
+  if ( ch && ch->pcdata && get_wield( ch ) )
+  {
+    dam = number_range( ch->learn[sn] * 10
+      , ch->now_str * ( ( get_wield( ch )->value[1]
+      + get_wield( ch )->value[2] ) / 2 ) );
+  }
+  else
+  {
+    if ( !IS_NPC( ch ) )
+      mudlog( LOG_DEBUG, "技能 %d 的攻傷設定有問題." , sn );
+    dam = 100;
+  }
+
+  practice = get_practice( ch, sn );
+
+  /* 攻傷敘述 */
+  switch( dimemsion_position( choice, practice, TRUE ) )
+  {
+  case ERRORCODE:
+    mudlog( LOG_DEBUG, "技能 %d 的訊息設定有問題." , sn );
+    RETURN_NULL();
+
+  case 0:
+    act_skill( ch, victim
+      , "你不費吹灰之力用劍對著$N凌厲揮出,$E眼看閃不掉被畫出幾道深深的"
+        "傷口!!"
+      , "$n用了劍凌厲的揮向你,但你閃避不及,"
+        "瞬間身上以多了幾道傷痕!!"
+      , "$n用劍凌厲地揮向$N,$E閃躲不及被割的鮮血直流!!" );
+    damage( ch , victim , dam , sn );
+    break;
+
+  case 1:
+    act_skill( ch, victim
+      , "你利用多日來所學習的深湛劍術, 提劍斬向$N,"
+        " 一陣紅芒迅速向$E逼近!!"
+      , "$n做好準備, 以數日來練習的成果揮劍砍向你, "
+        "一陣紅芒隨著劍尖向你逼近!!"
+      , "$n做好準備, 以數日來練習的成果揮劍砍向$N,"
+         " 只見一條紅芒迅疾向$E衝去!!" );
+    damage( ch , victim , dam * 2, sn );
+    break;
+
+  case 2:
+    act_skill( ch, victim
+      , "你眼光集中在劍尖, 心中元神合一, 天氣突然轉陰!!\n\r"
+        "瞬間, 你張開雙眼, 將劍尖和$N成為一線, 以劍直逼$E而去!!"
+      , "$n突然對著劍尖發呆, 但見天色突然暗下, "
+        "有風雨將至之勢.\n\r突然之間, $e順著劍尖急速將劍揮向你,"
+        " 眼看閃躲不過!!"
+      , "$n突然對著劍尖發呆, 但見天色突然暗下, "
+        "有風雨將至之勢.\n\r突然之間, $e順著劍尖急速將劍揮向$N,"
+        " 眼看閃躲不過!!" );
+    damage( ch , victim , dam * 3, sn );
+    break;
+
+
+  case 3:
+    act_skill( ch, victim
+      , "你突然放棄戰鬥, 轉身跳到了附近一個較高的地方,"
+        "眺目遠望...\n\r$N見到你這一副模樣, 急忙想要再上來一決死戰."
+        "\n\r於是你趁著$E在空中無法閃避之時給予猛烈的一擊!!"
+      , "$n在戰鬥中突然轉身跳向高處, 看的讓你十分迷惑."
+        "\n\r眼看這是一個不容錯失的好機會, 你奮力跳起衝向$e!!\n\r"
+        "就在你停在空中之時, $e揮劍急速由你上方急斬而來!!"
+      , "$n在戰鬥中突然轉身跳向高處, 看的讓大家十分迷惑."
+        "\n\r眼看這是一個不容錯失的好機會, $N奮力跳起衝向$e!!\n\r"
+        "就在$E停在空中之時, $e揮劍急速由$E上方急斬而下!!" );
+    damage( ch , victim , dam * number_range( 4, 8 ), sn );
+    break;
+
+  case 4:
+    if ( check_hand( ch , WEAPON_SWORD ) != 4 )
+    {
+      send_to_char( "就在你心領神會準備使出進階劍技最強招時, "
+                    "卻因沒有雙手握劍而失敗了!!\n\r" , ch );
+      RETURN_NULL();
+    }
+
+    act_skill( ch, victim
+      , "你以雙手握劍, 緩緩的醞集力量在雙手之上,"
+        " 只見手中的劍開始抖動!\n\r立刻你緩緩的以不可能的角度向"
+        "$N揮去, 讓$E不可能招架!!"
+      , "$n雙手握住手上大劍, 將全身力量全部集中在劍上"
+        ", 看來是一招強招!!\n\r轉眼間, $e以極緩慢速度揮劍攻向你"
+        ", 可是卻又讓你避無可避!!"
+      , "$n雙手握住手上大劍, 將全身力量全部集中在劍上"
+        ", 看來是一招強招!!\n\r轉眼間, $e以極緩慢速度揮劍攻向$N"
+        ", 可是卻又讓$E避無可避!!" );
+
+    /* 第一次攻擊 */
+    damage( ch, victim, dam * 8 , sn );
+
+    act_skill( ch, victim
+      , "接著你回劍入鞘, 將劍斜放在身後, 眼睛瞪著$N."
+        "\n\r再利用轉身和出鞘的力量, 讓劍發出嗡嗡之聲攻向$E!!"
+      , "然後$n將劍收回劍鞘內, 放在身後邊, 又以兇惡"
+        "的雙眼瞪視你!!\n\r就在你被嚇得心神失控之時, $e轉身出劍"
+        ", 以顫抖不停之劍揮向你而來!!"
+      , "然後$n將劍收回劍鞘內, 放在身後邊, 又以兇惡"
+        "的雙眼瞪視$N!!\n\r就在$E被嚇得心神失控之時, $e轉身出劍"
+        ", 以顫抖不停之劍揮向$E而去!!" );
+
+    /* 第二次攻擊 */
+    if ( !check_continue( ch, victim ) ) RETURN_NULL();
+    damage( ch, victim, dam * 8 , sn );
+
+    act_skill( ch, victim
+      , "之後你利用劍本身抖動不停的餘勢, 發出"
+        "一道極為猛烈的劍氣向$N席捲而去!!"
+      , "再來$n就順著劍的抖動, 發出一道劍氣, "
+        "壓迫的你呼吸困難!!"
+      , "接著$n就以劍的抖動發出了一道猛烈的劍氣, "
+        "就在劍氣衝向$N之時, 連你也覺得呼吸困難!!" );
+
+    /* 第三次攻擊 */
+    if ( !check_continue( ch, victim ) ) RETURN_NULL();
+    damage( ch , victim , dam * number_range( 2, 3 ), sn );
+
+  }
+
+  RETURN_NULL();
+}
+
+/* 氣擊 --> Added by Ene */
+void skill_force_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_force_attack" );
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你運氣集中力量於手指, 再將其釋放到$N身上!!"
+    , "$n運氣集中力量於手指, 再將其釋放到你身上!!"
+    , "$n運氣集中力量於手指, 再將其釋放到$N身上!!" );
+
+  /* -- 保留敘述, 以後使用 --
+  act_skill( ch, victim
+    , "一股浩然之氣從你丹田裡竄升起來, 聚精會神地將"
+      "此剛猛的勁道聚集在手指上!!\n\r"
+      "你將手指輕輕的碰在$N身上, 瞬間這股勁道整個釋放"
+      "開來, $N因重心不穩而跌倒在地!!\n\r"
+    , "看見$n身上發出一股浩然之氣, 聚精會神地將"
+      "此剛猛的勁道聚集在手指上!!\n\r"
+      "$n將手指輕輕的碰到你, 瞬間這股勁道整個釋放"
+      "開來, 你因重心不穩而跌倒在地!!\n\r"
+    , "$n身上發出一股浩然之氣, 聚精會神地將"
+      "此剛猛的勁道聚集在手指上!!\n\r"
+      "$n將手指輕輕的碰到$N, 瞬間這股勁道整個釋放"
+      "開來, $N因重心不穩而跌倒在地!!\n\r" ); */
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ch->now_int ;
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 讀書識字 -- Added by Cutty */
+void skill_knowledge( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  char   buf[ MAX_STRING_LENGTH ];
+  sh_int chance;
+
+  PUSH_FUNCTION( "skill_knowledge" );
+
+  /* 開始讀書 */
+  sprintf( buf , "妳拿了一本書,席地而坐開始讀了起來." );
+  act( buf , ch , NULL , NULL , TO_CHAR );
+  sprintf( buf , "$n拿了一本書,若有其事的坐下來開始研讀." );
+  act( buf , ch , NULL , NULL , TO_ROOM );
+
+  /* 計算機率 */
+  chance = IS_NPC( ch ) ? ch->level : ch->learn[sn] / 2;
+
+  /* 讀書失敗,得不到經驗值. */
+  if ( number_percent() >= chance )
+  {
+    sprintf( buf , "妳感到頭昏腦脹,什麼書都看不下去." );
+    act( buf , ch , NULL , NULL , TO_CHAR );
+    sprintf( buf , "$n把書一放,又開始胡思亂想了." );
+    act( buf , ch , NULL , NULL , TO_ROOM );
+    RETURN_NULL();
+  }
+
+  /* 增加知識 */
+  if ( number_range( 1, 10000 ) <= 1 )
+  {
+    sprintf( buf , "\x1b[1;37m天空突然降下一道雷電"
+      ",妳突然感到豁然貫通!!\x1b[0m\n\r"
+      "\x1b[1;31m但是你也被雷打的渾身無力!!\x1b[0m" );
+    act( buf , ch , NULL , NULL , TO_CHAR );
+    sprintf( buf , "\x1b[1;37m$n得到誠心苦讀,獲得神的庇佑"
+      ",知識又越來越多了!!\x1b[0m" );
+    act( buf , ch , NULL , NULL , TO_ROOM );
+
+    /* 增進知識兩點但狀態歸零 */
+    if ( !IS_NPC( ch ) )
+    {
+      ch->learn[sn] += 2;
+      ch->hit  = 1;
+      ch->mana = 1;
+      ch->move = 1;
+    }
+
+    RETURN_NULL();
+  }
+
+  /* 成功\ */
+  sprintf( buf , "妳感到文思泉湧, 似乎瞬間便可以做出一篇文章.\n\r"
+    "並且法力增加了." );
+  act( buf , ch , NULL , NULL , TO_CHAR );
+  sprintf( buf , "$n突然拿著書本開始偷笑了起來,可能有什麼領悟了吧!!" );
+  act( buf , ch , NULL , NULL , TO_ROOM );
+
+  /* 增加法力 */
+  ch->mana = UMIN( ch->max_mana , ch->mana
+    + ( ch->now_int * !IS_NPC( ch ) ? ch->learn[sn]
+    : ch->level ) );
+  RETURN_NULL();
+}
+
+/* 運氣 -- Added by Cutty */
+void skill_cast_force( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  char   buf[MAX_STRING_LENGTH];
+  sh_int chance;
+
+  PUSH_FUNCTION( "skill_cast_force" );
+
+  /* 生命力不足,無法運氣 */
+  if ( ch->hit < ( ch->learn[sn] + 1 ) && !IS_NPC( ch ) )
+  {
+    sprintf( buf , "妳的生命力太低,若再運氣可能會噴血而死." );
+    act( buf , ch , NULL , NULL , TO_CHAR );
+    RETURN_NULL();
+  }
+
+  /* 開始運氣 */
+  sprintf( buf , "妳運氣坐了下來,氣沈丹田"
+    "隱隱的感覺到一股熱氣由下部往上飄升." );
+  act( buf , ch , NULL , NULL ,TO_CHAR );
+  sprintf( buf , "$N坐了下來,開始運氣." );
+  act( buf , ch , NULL , NULL , TO_ROOM );
+
+  /* 計算機率 */
+  chance = ( ( !IS_NPC( ch ) ? ch->learn[sn]
+  : ch->level ) + ch->now_int ) / 3;
+
+  /* 運氣失敗 */
+  if ( number_percent() >= chance )
+  {
+    sprintf( buf , "妳無法集中精神,運氣失敗....\n\r"
+      "\x1b[1;31m妳感到胸中氣血翻湧,十分難過...\x1b[0m" );
+    act( buf , ch , NULL , NULL , TO_CHAR );
+    sprintf( buf , "$n因為失神而運氣失敗..." );
+
+    /* 失敗且扣除生命力 */
+    if ( !IS_NPC( ch ) )
+      ch->hit -= ch->learn[sn];
+    if ( ch->hit < 1 ) ch->hit = 1;
+    RETURN_NULL();
+  }
+
+  /* 成功\ */
+  sprintf( buf , "妳覺得全身舒泰,內力又增加了一些,"
+    "並且渾身的傷口似乎回復了." );
+  act( buf , ch , NULL , NULL , TO_CHAR );
+  sprintf( buf , "$n運氣成功\,全身隱隱的發出一陣精光." );
+  act( buf , ch , NULL , NULL , TO_ROOM );
+
+  /* 增加生命力與法力 */
+  if ( !IS_NPC( ch ) )
+    ch->hit = UMIN( ch->max_hit , ch->hit + ch->learn[sn] );
+  ch->mana = UMIN( ch->max_mana , ch->mana
+    + ( ch->now_int * ch->learn[sn] ) / 2 );
+  RETURN_NULL();
+}
+
+/* 踢 Added by Cutty */
+void skill_kick( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = ( CHAR_DATA * ) vo;
+  int         dam;
+  sh_int      chance;
+
+  PUSH_FUNCTION( " skill_kick " );
+
+  /* 留個檢查函數 */
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你伸出大腳用力往$N踢去...."
+    , "$n用他的腳往$N一踢..."
+    , "$n伸出大腳向著你用力踢來." );
+
+  /* 機會 */
+  if ( !IS_NPC( ch ) )
+    chance = ( ch->now_dex + ch->learn[sn] ) / 2;
+  else chance = ch->level ;
+
+  /* 讓他跌倒 */
+  if ( number_percent() >= chance )
+  {
+    send_to_char( "\x1b[1;36m你失去平衡, 跌倒在地, 滿臉"
+      "都是鮮血..\x1b[0m\n\r" , ch );
+    if ( !IS_NPC( ch ) )
+      ch->hit -= ch->learn[sn] / 2;
+    if ( ch->hit < 1 && !IS_IMMORTAL( ch ) )
+    {
+      send_to_char( "\x1b[1;31m虛弱的你被地上的鐵釘刺到, 慢慢你"
+        "的眼睛開始模糊了.\x1b[0m\n\r" , ch );
+      RETURN_NULL();
+    }
+    RETURN_NULL();
+  }
+
+  /* 扣除對方生命 */
+  if ( !IS_NPC( ch ) )
+    dam = ch->now_str * 5 + ch->learn[sn];
+  else dam = ch->level;
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 基本攻擊 -- Added by Cutty */
+void skill_common_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = ( CHAR_DATA * ) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_common_attack" );
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "妳提起勁向著$N攻去..."
+    , "$n向著$N一輪猛攻..."
+    , "$n猛烈的向著你攻來.." );
+
+  /* 攻傷 */
+  dam = ch->damroll;
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 尖叫 -- Added by Cutty */
+void skill_scratching( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  char              buf[MAX_STRING_LENGTH];
+  sh_int            chance;
+  ROOM_INDEX_DATA * was_in_room;
+  int               door;
+
+  PUSH_FUNCTION( "skill_scratching" );
+
+  /* 怪物無法尖叫 */
+  if ( IS_NPC( ch ) ) RETURN_NULL();
+
+  /* 手上有東西無法尖叫 */
+  if ( check_hand( ch , WEAPON_ALL ) != WEAR_NONE )
+  {
+    send_to_char( "你的手上有東西, 無法施展這個技能.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 設定機率 */
+  if ( !IS_NPC( ch ) )
+    chance = ( ch->now_wis + ch->learn[sn] ) / 3;
+  else chance = ch->level;
+
+  /* 不成功 */
+  if ( number_percent() >= chance )
+  {
+    send_to_char( "沒人要聽妳尖叫啦..閉嘴...\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 敘述 */
+  sprintf( buf , "妳試著拉長喉嚨大聲尖叫,祈求神增加自己的法力.\n\r"
+    "突然,一道雷電從天而降,筆直的打在妳身上,妳的法力增加了." );
+  act( buf , ch , NULL , NULL , TO_CHAR );
+  sprintf( buf , "$n大聲尖叫, 結果被落雷打到,好像很痛的樣子." );
+  act( buf , ch , NULL , NULL , TO_ROOM );
+
+  /* 旁邊的人聽到 */
+  was_in_room = ch->in_room;
+  for ( door = 0; door <= 5; door++ )
+  {
+    EXIT_DATA * pexit;
+
+    if ( ( pexit = was_in_room->exit[door] ) != NULL
+      &&   pexit->to_room != NULL
+      &&   pexit->to_room != was_in_room )
+    {
+      ch->in_room = pexit->to_room;
+      sprintf( buf , "妳似乎聽到一聲刺耳的尖叫..." );
+      act( buf, ch, NULL, NULL, TO_ROOM );
+    }
+  }
+  ch->in_room = was_in_room;
+
+  /* 補充法力 */
+  if ( !IS_NPC( ch ) )
+    ch->mana = UMIN( ch->max_mana , ch->mana
+      + ( ch->now_int + ch->learn[sn] ) * 3);
+  RETURN_NULL();
+}
+
+/* 舞刀技 -- Added by Cutty */
+void skill_dance_blade( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_dance_blade" );
+
+  /* 檢查是否拿刀 */
+  if ( check_hand( ch , WEAPON_BLADE ) == WEAR_NONE )
+  {
+    send_to_char( "你必須要拿刀才能施展刀術.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你將刀一橫, 用力劈向$N!!"
+    , "$n一使勁, 即橫刀向你劈至!!"
+    , "$n猛力的將手上的刀橫橫劈向$N!!" );
+
+  /* -- 保留敘述, 以後使用 --
+  act_skill( ch, victim
+    , "你橫刀佇立,一副威風凜凜不可一世的樣子.\n\r"
+      "忽然間舞起手上的刀輕飄飄的砍向$N,讓$E留下不可磨滅的痕跡."
+    , "$n插刀在地,待周遭空氣全部寂靜...."
+      "瞬間向跳舞似的將刀往$N身上招呼.."
+    , "$n忽靜忽動將他手上的刀以不可思議的角度砍在你身上." );
+  */
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 進階舞刀技 -- Added by ene */
+void skill_dance_adv_blade( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_dance_adv_blade" );
+
+  /* 檢查是否拿刀 */
+  if ( check_hand( ch , WEAPON_BLADE ) == WEAR_NONE )
+  {
+    send_to_char( "你必須要拿刀才能施展刀術.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你將刀飛舞般的劈向$N, 立即見血!!"
+    , "$n犀利的攻勢, 橫刀飛快地向你劈至!!"
+    , "$n飛舞著手上的刀輕巧地劈向$N!!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 槍技 -- Added by Cutty */
+void skill_lance_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_lance_attack" );
+
+  /* 檢查是否拿槍 */
+  if ( check_hand( ch , WEAPON_SPEAR ) == WEAR_NONE )
+  {
+    send_to_char( "你必須要拿槍才能施展槍術.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你將長槍以兩手握住, 直直向$N戳去!!"
+    , "$n雙手握住手上的槍, 直直的向你攻來!"
+    , "$n將手上的長槍直直的向$N攻去!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 進階槍技 -- Added by ene */
+void skill_lance_adv_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_lance_adv_attack" );
+
+  /* 檢查是否拿槍 */
+  if ( check_hand( ch , WEAPON_SPEAR ) != HAND_BOTH )
+  {
+    send_to_char( "你必須要雙手拿槍才能施展槍術.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你將長槍以兩手握住, 直接向$N戳去, 槍尖劃出一段長虹, 直直的向$N攻去!"
+    , "$n雙手握住手上的槍, 瞬間一道長虹向你逼近!"
+    , "$n將手上的長槍化作長虹猛烈向$N攻去!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 匕首技 -- Added by Cutty */
+void skill_dagger_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_dagger_attack" );
+
+  /* 檢查是否拿匕首 */
+  if ( check_hand( ch , WEAPON_DAGGER ) == WEAR_NONE )
+  {
+    send_to_char( "你必須要拿匕首才能施展匕首術.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你握住匕首,順著$N不察覺的瞬間,以全力刺向$E!!"
+    , "$n趁著你失神的瞬間,手上匕首刺向你而來!!"
+    , "$n趁著$N失神的瞬間,以匕首向其招呼!!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 進階匕首技 -- Added by ene */
+void skill_dagger_adv_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_dagger_adv_attack" );
+
+  /* 檢查是否拿匕首 */
+  if ( check_hand( ch , WEAPON_DAGGER ) == WEAR_NONE )
+  {
+    send_to_char( "你必須要拿匕首才能施展匕首術.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你集中所有注視力看著$N, 往$E的破綻疾駛戳去!!"
+    , "$n趁著你神經錯亂的時候, 手上的匕首以向你戳了過來!!"
+    , "$n趁著$N神經錯亂的時候, 以匕首長驅戳入弱點!!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 單手斧技 -- Added by Cutty */
+void skill_axe_sin_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_axe_sin_attack" );
+
+  /* 檢查是否只有單手有拿斧頭 */
+  if ( check_hand( ch , WEAPON_AXE ) != HAND_LEFT
+    || check_hand( ch , WEAPON_AXE ) != HAND_RIGHT )
+  {
+    send_to_char( "這個技能必須用單手拿斧頭.\n\r", ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你全力握住手上斧頭,向$N砍去!!"
+    , "$n猛喝一聲,手上斧頭向你砍下!!"
+    , "$n猛喝一聲,以手上斧頭向$N砍下!!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 進階單手斧技 -- Added by ene */
+void skill_axe_sin_adv_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_axe_sin_adv_attack" );
+
+  /* 檢查是否拿斧頭 */
+  if ( check_hand( ch , WEAPON_AXE ) == WEAR_NONE )
+  {
+    send_to_char( "你必須要拿斧頭才能施展斧技.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你用單田之力握住手上斧頭,以氣凝神向$N要害砍去!!"
+    , "$n聚精會神, 目不轉睛, 手上斧頭穩穩的向你要害砍下!!"
+    , "$n以氣凝神將手上斧頭向$N要害砍下!!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 槌子攻擊 -- Added by Cutty */
+void skill_hammer_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_hammer_attack" );
+
+  /* 檢查是否拿槌子 */
+  if ( check_hand( ch , WEAPON_HAMMER ) == WEAR_NONE )
+  {
+    send_to_char( "你必須要拿槌子才能施展槌技.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你全力握住手上槌子,向$N敲下!!"
+    , "$n猛喝一聲,手上槌子立即向你敲下!!"
+    , "$n猛喝一聲,以手上槌子向$N敲下!!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 進階槌子攻擊 -- Added by Ene */
+void skill_hammer_adv_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_hammer_adv_attack" );
+
+  /* 檢查是否拿槌子 */
+  if ( check_hand( ch , WEAPON_HAMMER ) == WEAR_NONE )
+  {
+    send_to_char( "你必須要拿槌子才能施展槌技.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你輕巧的把手上的槌子敲向$N的腦袋瓜, 使得$N頭冒星星耶!!"
+    , "$n輕巧的將手上的槌子向你腦袋瓜敲下, 使得你頭冒星星耶!!"
+    , "$n將手上的槌子敲向$N的腦袋瓜子, 看到$N的頭冒星星耶!!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 長鞭攻擊 -- Added by Cutty */
+void skill_whip_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_whip_attack" );
+
+  /* 檢查是否拿鞭 */
+  if ( check_hand( ch , WEAPON_WHIP ) == WEAR_NONE )
+  {
+    send_to_char( "你必須要拿鞭才能施展鞭技.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你揮起手上鞭子,向$N捲去!!"
+    , "$n用力一抖,將手上鞭子揮向你身上!!"
+    , "$n將手上鞭子朝$N揮去!!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 進階長鞭攻擊 -- Added by Ene */
+void skill_whip_adv_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_whip_adv_attack" );
+
+  /* 檢查是否拿鞭 */
+  if ( check_hand( ch , WEAPON_WHIP ) == WEAR_NONE )
+  {
+    send_to_char( "你必須要拿鞭才能施展鞭技.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你旋風式抖動手上鞭子, 向$N屁股上鞭打下去!!"
+    , "見$n抖動手上鞭子, 準準的鞭向你的小屁屁上!!"
+    , "$n旋風式抖動手上鞭子, 朝$N屁股上鞭打下去!!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 弓箭技 -- Added by ene */
+void skill_bow_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_bow_attack" );
+
+  /* 檢查是否拿弓 */
+  if ( check_hand( ch , WEAPON_BOW ) == WEAR_NONE )
+  {
+    send_to_char( "你必須要拿弓才能施展弓箭技.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你拉起手上的弓箭,向$N射去!!"
+    , "$n用力一射,將弓上的箭射在你的身上!!"
+    , "$n將弓上的箭朝$N射去!!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 進階弓箭技 -- Added by Ene */
+void skill_bow_adv_attack( int sn , int level , CHAR_DATA * ch , void * vo)
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_bow_adv_attack" );
+
+  /* 檢查是否雙手拿弓 */
+  if ( check_hand( ch , WEAPON_BOW ) != HAND_BOTH )
+  {
+    send_to_char( "你必須要雙手拿弓才能施展此弓箭技.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你大跨步伐, 拉滿弓羿, 嗽∼嗽∼嗽∼ 往$N身上射去!!"
+    , "嗽∼嗽∼嗽∼ $n用力一射,將弓上的箭射在你的身上!!"
+    , "$n大跨步伐, 拉滿弓羿, 嗽∼嗽∼嗽∼ 往$N身上射去!!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 棍棒攻擊 -- Added by Ene */
+void skill_club_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_club_attack" );
+
+  /* 檢查是否拿棍棒 */
+  if ( check_hand( ch , WEAPON_CLUB ) == WEAR_NONE )
+  {
+    send_to_char( "你必須要拿棍棒才能施展棍棒攻擊.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  sact( ch, victim, NULL, "$n揮起手上的棍棒,向$N敲去!!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+  RETURN_NULL();
+}
+
+/* 進階棍棒攻擊 -- Added by Ene */
+void skill_club_adv_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_club_adv_attack" );
+
+  /* 檢查是否拿棍棒 */
+  if ( check_hand( ch , WEAPON_CLUB ) == WEAR_NONE )
+  {
+    send_to_char( "你必須要拿棍棒才能施展棍棒攻擊.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  sact( ch, victim, NULL, "$n持著棍棒往地上一畫, 以「快、狠、準」向$N敲去!!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 麾筆攻擊 -- Added by Ene */
+void skill_pen_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_pen_attack" );
+
+  /* 檢查是否拿筆 */
+  if ( check_hand( ch , WEAPON_PEN ) == WEAR_NONE )
+  {
+    send_to_char( "你必須要拿著筆才能施展麾筆攻擊.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你揮起手上的筆,向$N麾去!!"
+    , "$n用力一麾,將手上的筆亂畫在你的身上!!"
+    , "$n將手上的筆朝$N麾去!!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}
+
+/* 進階麾筆攻擊 -- Added by Ene */
+void skill_pen_adv_attack( int sn , int level , CHAR_DATA * ch , void * vo )
+{
+  CHAR_DATA * victim = (CHAR_DATA *) vo;
+  int         dam;
+
+  PUSH_FUNCTION( "skill_pen_adv_attack" );
+
+  /* 檢查是否拿筆 */
+  if ( check_hand( ch , WEAPON_PEN ) == WEAR_NONE )
+  {
+    send_to_char( "你必須要拿著筆才能施展麾筆攻擊.\n\r" , ch );
+    RETURN_NULL();
+  }
+
+  /* 攻傷敘述 */
+  act_skill( ch, victim
+    , "你拿筆在自己身上亂畫, $N突然被此景象嚇得驚駭過度!!"
+    , "$n將手上的筆亂畫在身上, 你看到此景象嚇得驚駭過度!!"
+    , "$n拿筆在自己身上亂畫, $N突然被此景象嚇得驚駭過度!!" );
+
+  /* 計算攻傷 */
+  dam = ch->now_str * ( ( get_wield( ch )->value[1]
+    + get_wield( ch )->value[2] ) / 2 );
+  damage( ch , victim , dam , sn );
+
+  RETURN_NULL();
+}

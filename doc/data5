@@ -1,0 +1,702 @@
+標  題: Merc 2.x 線上房間編輯器 再修正
+
+        謝謝 cave 的來信指正:) 除了他的指正外, 我也因此發現到一些
+        有問題的地方. 在這版除了修正這些錯誤外, 還加上了清除所有編
+        輯資料及拷貝房間的功能.
+
+#if defined(macintosh)
+#include <types.h>
+#else
+#include <sys/types.h>
+#endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include "merc.h"
+
+
+#define TEST_AREA_DIR           "../area.test/"
+
+extern void     load_area       args( ( FILE *fp ) );
+extern void     load_helps      args( ( FILE *fp ) );
+extern void     load_mobiles    args( ( FILE *fp ) );
+extern void     load_objects    args( ( FILE *fp ) );
+extern void     load_resets     args( ( FILE *fp ) );
+extern void     load_rooms      args( ( FILE *fp ) );
+extern void     load_shops      args( ( FILE *fp ) );
+extern void     load_specials   args( ( FILE *fp ) );
+extern void     load_notes      args( ( void ) );
+extern void     load_mobprogs   args( ( FILE* fp ) );
+
+extern int                      top_room;
+extern int                      top_exit;
+extern AREA_DATA *              area_last;
+extern ROOM_INDEX_DATA *        room_index_hash         [MAX_KEY_HASH];
+extern char                     str_empty[1];
+extern bool                     fBootDb;
+
+typedef struct edit_room_data           EDIT_ROOM_DATA;
+
+struct   edit_room_data
+{
+    ROOM_INDEX_DATA *   room;
+    EDIT_ROOM_DATA  *   next;
+};
+
+EDIT_ROOM_DATA *        pEdit_room;
+ROOM_INDEX_DATA *       room_index_data_free;
+EXIT_DATA *             exit_data_free;
+EDIT_ROOM_DATA *        edit_room_data_free;
+
+
+/* 把 pRoomIndex 這間房間的 dir 出口刪除 */
+bool del_exit( ROOM_INDEX_DATA *pRoomIndex, int dir )
+{
+    EXIT_DATA *pexit;
+
+    if( ( pexit = pRoomIndex->exit[dir] ) == NULL )
+        return FALSE;
+    free_string(pexit->description);
+    free_string(pexit->keyword);
+    pexit->description      = &str_empty[0];
+    pexit->keyword          = &str_empty[0];
+    pexit->exit_info    = 0;
+    pexit->key          = -1;
+    pexit->vnum         = 0;
+    pexit->to_room              = NULL;
+    pRoomIndex->exit[dir]       = NULL;
+    if( exit_data_free == NULL )
+        exit_data_free = pexit;
+    else
+    {
+        pexit->next = exit_data_free;
+        exit_data_free = pexit->next;
+    }
+    return TRUE;
+}
+
+bool load_area_file(CHAR_DATA *ch,FILE *fp)
+{
+    fBootDb = TRUE;
+    for ( ; ; )
+    {
+        char *word;
+
+        if ( fread_letter( fp ) != '#' )
+        {
+            send_to_char( "Load_Area_File: # not found.", ch );
+            fBootDb = FALSE;
+            return FALSE;
+        }
+
+        word = fread_word( fp );
+
+            if ( word[0] == '$'               )              break;
+        else if ( !str_cmp( word, "AREA"     ) ) load_area    (fp);
+        else if ( !str_cmp( word, "HELPS"    ) ) load_helps   (fp);
+        else if ( !str_cmp( word, "MOBILES"  ) ) load_mobiles (fp);
+        else if ( !str_cmp( word, "MOBPROGS" ) ) load_mobprogs(fp);
+        else if ( !str_cmp( word, "OBJECTS"  ) ) load_objects (fp);
+        else if ( !str_cmp( word, "RESETS"   ) ) load_resets  (fp);
+        else if ( !str_cmp( word, "ROOMS"    ) ) load_rooms   (fp);
+        else if ( !str_cmp( word, "SHOPS"    ) ) load_shops   (fp);
+        else if ( !str_cmp( word, "SPECIALS" ) ) load_specials(fp);
+        else
+        {
+            send_to_char( "Load_Area_file: bad section name.", ch );
+            fBootDb = FALSE;
+            return FALSE;
+        }
+    }
+    fBootDb = FALSE;
+    return TRUE;
+}
+
+void reset_room_index_data( ROOM_INDEX_DATA *pRoomIndex , int vnum)
+{
+    int door;
+    pRoomIndex->people          = NULL;
+    pRoomIndex->trap            = NULL;
+    pRoomIndex->contents        = NULL;
+    pRoomIndex->extra_descr     = NULL;
+    pRoomIndex->area            = area_last;
+    pRoomIndex->vnum            = vnum;
+    free_string( pRoomIndex->name );
+    free_string( pRoomIndex->description);
+    pRoomIndex->room_flags      = 8;
+    pRoomIndex->sector_type     = 0;
+    pRoomIndex->light           = 0;
+    for ( door = 0; door <= 5; door++ )
+    {
+        del_exit( pRoomIndex, door);
+    }
+}
+
+void fwrite_edit_area( ROOM_INDEX_DATA *pRoomIndex, FILE *fp )
+{
+    int dir;
+
+    if( fp == NULL )
+    {
+        bug(" Fwrite_edit_area: fp NULL !!", 0 );
+        return;
+    }
+    fprintf( fp, "#%d\n", pRoomIndex->vnum );
+    if( pRoomIndex->name != NULL )
+        fprintf( fp, "%s~\n", pRoomIndex->name );
+    else
+        fprintf( fp, "~\n");
+    if( pRoomIndex->description != NULL )
+        fprintf( fp, "%s~\n", pRoomIndex->description );
+    else
+        fprintf( fp, "~\n");
+    fprintf( fp, "%d %d %d \n", pRoomIndex->vnum/100, pRoomIndex->room_flags,
+                                pRoomIndex->sector_type );
+    for( dir = 0; dir < 5; dir++ )
+    {
+        if( pRoomIndex->exit[dir] != NULL )
+        {
+            fprintf( fp, "D%d\n", dir);
+            if( pRoomIndex->exit[dir]->description != NULL )
+                fprintf( fp, "%s~\n", pRoomIndex->exit[dir]->description );
+            else
+                fprintf( fp, "~\n");
+            if( pRoomIndex->exit[dir]->keyword != NULL )
+                fprintf( fp, "%s~\n", pRoomIndex->exit[dir]->keyword );
+            else
+                fprintf( fp, "~\n");
+            fprintf( fp, "%d %d %d\n", 0, pRoomIndex->exit[dir]->key,
+                                pRoomIndex->exit[dir]->vnum );
+        }
+    }
+    fprintf( fp, "S\n");
+}
+
+/* 把 pRoomIndex 這間房間的出口連到 vnum 來 */
+
+void set_exit( ROOM_INDEX_DATA *pRoomIndex, int vnum, int dir )
+{
+        EXIT_DATA *pexit;
+
+        if( pRoomIndex->exit[dir] == NULL )
+        {
+            if( exit_data_free != NULL )
+            {
+                pexit = exit_data_free;
+                exit_data_free = pexit->next;
+            }
+            else
+                pexit   = alloc_perm( sizeof(*pexit) );
+        }
+        else
+        {
+          pexit                 = pRoomIndex->exit[dir];
+          free_string(pexit->description);
+          free_string(pexit->keyword);
+        }
+        pexit->description      = &str_empty[0];
+        pexit->keyword          = &str_empty[0];
+        pexit->exit_info        = 0;
+        pexit->key              = -1;
+        pexit->vnum             = vnum;
+        pexit->to_room = get_room_index( vnum );
+        pRoomIndex->exit[dir]   = pexit;
+        return;
+}
+
+
+
+void do_addroom( CHAR_DATA * ch, char *argument)
+{
+    ROOM_INDEX_DATA *pRoomIndex;
+    int vnum, iHash;
+    EDIT_ROOM_DATA *  pRoom;
+
+    if( argument == NULL )
+    {
+        send_to_char("格式: addroom <vnum> \n\r", ch);
+        return;
+    }
+    if( !is_number( argument ) )
+    {
+        send_to_char(" vnum 請輸入數字...\n\r", ch);
+        return;
+    }
+
+    vnum = atoi( argument );
+    if( get_room_index( vnum ) != NULL )
+    {
+        send_to_char("這個號碼已經存在了..\n\r", ch );
+        return;
+    }
+
+    /*
+     * Init Room Data ..Qing
+     */
+
+    if( room_index_data_free == NULL )
+        pRoomIndex              = alloc_perm( sizeof(*pRoomIndex) );
+    else
+    {
+        pRoomIndex = room_index_data_free;
+        room_index_data_free = room_index_data_free->next;
+    }
+    reset_room_index_data( pRoomIndex, vnum );
+    iHash                       = vnum % MAX_KEY_HASH;
+    pRoomIndex->next            = room_index_hash[iHash];
+    room_index_hash[iHash]      = pRoomIndex;
+    top_room++;
+
+    if( edit_room_data_free == NULL )
+        pRoom = alloc_perm( sizeof(*pRoom) );
+    else
+    {
+        pRoom = edit_room_data_free;
+        edit_room_data_free = edit_room_data_free->next;
+    }
+
+    pRoom->room = pRoomIndex;
+    pRoom->next = pEdit_room;
+    pEdit_room = pRoom;
+    send_to_char("OK!\n\r",ch);
+}
+
+void do_delroom( CHAR_DATA * ch, char *argument)
+{
+    ROOM_INDEX_DATA *pRoomIndex,*pRoomHash;
+    ROOM_INDEX_DATA *location;
+    int vnum, iHash;
+    EDIT_ROOM_DATA *  pRoom;
+
+    if( argument == NULL )
+    {
+        send_to_char("格式: delroom <vnum> \n\r", ch);
+        return;
+    }
+    if( !is_number( argument ) )
+    {
+        send_to_char(" vnum 請輸入數字...\n\r", ch);
+        return;
+    }
+
+    vnum = atoi( argument );
+    if( ( pRoomIndex = get_room_index( vnum ) ) == NULL )
+    {
+        send_to_char("這個號碼並不存在.\n\r", ch );
+        return;
+    }
+    location = ch->in_room;
+    char_from_room( ch);
+    char_to_room( ch, pRoomIndex);
+    do_purge(ch,"");                    /* Clear all in Room */
+    char_from_room( ch);
+    char_to_room( ch, location);
+    for( ; pRoomIndex->people != NULL ; )
+    {
+
+        if ( ( location = get_room_index( ROOM_VNUM_TEMPLE ) ) == NULL )
+        {
+            location = get_room_index( ROOM_VNUM_LIMBO);
+        }
+        if( ch->in_room == location )
+            return;
+        if( ch->fighting != NULL )
+            stop_fighting( ch, TRUE);
+        char_from_room( ch );
+        char_to_room( ch, location);
+        do_look( ch, "auto" );
+    }
+
+    iHash                       = vnum % MAX_KEY_HASH;
+    if( room_index_hash[iHash] == pRoomIndex )
+        room_index_hash[iHash] = pRoomIndex->next;
+    else
+    {
+
+        for( pRoomHash = room_index_hash[iHash]; pRoomHash != NULL;
+                                pRoomHash = pRoomHash->next )
+        {
+            if( pRoomHash == pRoomIndex )
+            {
+                char buf[100];
+                sprintf( buf, " 刪除房間: %s %d! \n\r", pRoomHash->name,
+                                        pRoomHash->vnum);
+                send_to_char( buf, ch );
+                break;
+            }
+        }
+    }
+
+    if( pRoomIndex == pEdit_room->room )
+    {
+        pRoom = pEdit_room;
+        pEdit_room = pEdit_room->next;
+    }
+    else
+    {
+        EDIT_ROOM_DATA *pRoomTmp;
+        for( pRoom = pEdit_room; pRoom->next != NULL
+                      && pRoom->next->room != pRoomIndex; pRoom = pRoom->next )
+                        ; /* 一行 */
+        if( pRoom->next == NULL )
+        {
+            send_to_char(" 房間不存在 !! \n\r", ch );
+            return;
+        }
+        else
+        {
+            pRoomTmp = pRoom->next;
+            pRoom->next = pRoom->next->next;
+            pRoom = pRoomTmp;
+        }
+    }
+    top_room--;
+
+    reset_room_index_data( pRoomIndex, vnum );
+
+    if( room_index_data_free == NULL )
+        room_index_data_free = pRoomIndex;
+    else
+    {
+        pRoomIndex->next = room_index_data_free;
+        room_index_data_free = room_index_data_free->next;
+    }
+
+    if( edit_room_data_free == NULL )
+        edit_room_data_free = pRoom;
+    else
+    {
+        pRoom->next = edit_room_data_free;
+        edit_room_data_free = edit_room_data_free->next;
+    }
+    send_to_char("OK!\n\r",ch);
+}
+
+
+void do_editroom( CHAR_DATA * ch, char *argument)
+{
+    char *pArg;
+    char command[MAX_INPUT_LENGTH];
+
+    pArg = one_argument( argument, command );
+
+    if( command[0] == '\0' || pArg[0] == NULL )
+    {
+        send_to_char("格式: editroom <command> <argumet> \n\r", ch);
+        return;
+    }
+
+    if( !str_prefix( command, "name" ) )
+    {
+        free_string(ch->in_room->name);
+        ch->in_room->name               = str_dup( pArg );
+        send_to_char("Ok! \n\r", ch);
+        return;
+    }
+    if( !str_prefix( command, "descr" ) )
+    {
+        free_string(ch->in_room->description);
+        sprintf( command,"%s\n",pArg);
+        ch->in_room->description                = str_dup( command );
+        send_to_char("Ok! \n\r", ch);
+        return;
+    }
+    if( !str_prefix( command, "flag" ) )
+    {
+        ch->in_room->room_flags         |= atoi( pArg );
+        send_to_char("Ok! \n\r", ch);
+        return;
+    }
+    if( !str_prefix( command, "sector" ) )
+    {
+        ch->in_room->sector_type                |= atoi( pArg );
+        send_to_char("Ok! \n\r", ch);
+        return;
+    }
+    if( !str_prefix( command, "list" ) )
+    {
+        EDIT_ROOM_DATA  * pRoomIndex;
+        char            buf[MAX_STRING_LENGTH];
+
+        for( pRoomIndex = pEdit_room; pRoomIndex != NULL;
+                                                pRoomIndex = pRoomIndex->next )
+        {
+            if( pRoomIndex->room->name != NULL )
+            {
+                sprintf( buf, " [ %6d ]  %s\n\r", pRoomIndex->room->vnum,
+                                        pRoomIndex->room->name );
+                send_to_char( buf , ch);
+            }
+            else
+            {
+                sprintf( buf, " [ %6d ]  尚未定名\n\r", pRoomIndex->room->vnum);
+                send_to_char( buf , ch);
+            }
+        }
+        return;
+    }
+    if( !str_prefix( command, "clear" ) )
+    {
+        EDIT_ROOM_DATA *pEdit,*pEdit_next;
+        char buf[1000];
+
+        if( str_cmp( pArg, "iamsure") )
+        {
+            send_to_char("如果真的要清除所有編輯過的資料: editroom clear iamsure\n\r", ch);
+            return;
+        }
+        for( pEdit = pEdit_room; pEdit != NULL; pEdit = pEdit_next)
+        {
+            pEdit_next = pEdit->next;
+            sprintf(buf,"%d",pEdit->room->vnum);
+            do_delroom(ch,buf);
+        }
+    }
+    send_to_char("命令不符合...\n\r", ch);
+    return;
+}
+
+void do_saveroom( CHAR_DATA * ch, char *argument)
+{
+    EDIT_ROOM_DATA *pRoom;
+    char strsave[MAX_INPUT_LENGTH];
+    char arg[MAX_INPUT_LENGTH];
+    FILE *fp;
+
+    one_argument( argument, arg );
+
+    sprintf( strsave, "%s%s", TEST_AREA_DIR,  arg );
+
+    fclose(fpReserve);
+    if ( ( fp = fopen( strsave, "w" ) ) == NULL )
+    {
+        send_to_char("開檔錯誤!! \n\r", ch );
+        return;
+    }
+    if( pEdit_room == NULL )
+    {
+        send_to_char("目前沒有編輯中的區域...\n\r", ch);
+        return;
+    }
+    fprintf( fp, "#ROOMS\n");
+    for( pRoom = pEdit_room; pRoom != NULL; pRoom = pRoom->next )
+        fwrite_edit_area( pRoom->room, fp );
+    fprintf( fp, "#0\n");
+    fclose( fp );
+    fpReserve = fopen( NULL_FILE, "r" );
+    send_to_char("OK!\n\r",ch);
+    return;
+}
+
+/* 雙向設定 */
+void do_addexit( CHAR_DATA * ch, char *argument)
+{
+    char direct[MAX_INPUT_LENGTH];
+    char *pVnum;
+    int vnum, dir;
+
+
+    pVnum = one_argument( argument, direct );
+
+    if( direct[0] == '\0' || pVnum == NULL )
+    {
+        send_to_char("格式: addexit <direct> <vnum> \n\r", ch);
+        return;
+    }
+    if( !is_number( pVnum ) )
+    {
+        send_to_char(" vnum 請輸入數字...\n\r", ch);
+        return;
+    }
+
+    vnum = atoi( pVnum );
+
+    if( !str_prefix( direct, "north" ) )
+        dir = 0;
+    else if( !str_prefix( direct, "east" ) )
+        dir = 1;
+    else if( !str_prefix( direct, "south" ) )
+        dir = 2;
+    else if( !str_prefix( direct, "west" ) )
+        dir = 3;
+    else if( !str_prefix( direct, "up" ) )
+        dir = 4;
+    else if( !str_prefix( direct, "down" ) )
+        dir = 5;
+    else
+    {
+        send_to_char("你想加到那個方向去啊..? \n\r", ch);
+        return;
+    }
+    if(  get_room_index( vnum ) == NULL )
+    {
+        send_to_char(" 欲連去的房間不存在 ! \n\r", ch);
+        return;
+    }
+    if ( ch->in_room->exit[dir] != NULL )
+    {
+        send_to_char("這個方向已經存在了...\n\r", ch );
+        return;
+    }
+
+    /*
+     * Init Exit Data ..Qing
+     */
+
+    set_exit( ch->in_room, vnum, dir );
+    switch ( dir )
+    {
+        case 0:
+            set_exit( ch->in_room->exit[dir]->to_room, ch->in_room->vnum, 2);
+            break;
+        case 1:
+            set_exit( ch->in_room->exit[dir]->to_room, ch->in_room->vnum, 3);
+            break;
+        case 2:
+            set_exit( ch->in_room->exit[dir]->to_room, ch->in_room->vnum, 0);
+            break;
+        case 3:
+            set_exit( ch->in_room->exit[dir]->to_room, ch->in_room->vnum, 1);
+            break;
+        case 4:
+            set_exit( ch->in_room->exit[dir]->to_room, ch->in_room->vnum, 5);
+            break;
+        case 5:
+            set_exit( ch->in_room->exit[dir]->to_room, ch->in_room->vnum, 4);
+            break;
+    }
+    top_exit++;
+    send_to_char("OK!\n\r",ch);
+}
+
+/* 只做單向刪除而不做雙向刪除 */
+void do_delexit( CHAR_DATA * ch, char *argument)
+{
+    char direct[MAX_INPUT_LENGTH];
+    int dir;
+
+
+    one_argument( argument, direct );
+
+    if( direct[0] == '\0')
+    {
+        send_to_char("格式: delexit <direct>\n\r", ch);
+        return;
+    }
+    if( !str_prefix( direct, "north" ) )
+        dir = 0;
+    else if( !str_prefix( direct, "east" ) )
+        dir = 1;
+    else if( !str_prefix( direct, "south" ) )
+        dir = 2;
+    else if( !str_prefix( direct, "west" ) )
+        dir = 3;
+    else if( !str_prefix( direct, "up" ) )
+        dir = 4;
+    else if( !str_prefix( direct, "down" ) )
+        dir = 5;
+    else
+    {
+        send_to_char("你想刪除那個方向的出口啊..? \n\r", ch);
+        return;
+    }
+    if ( ch->in_room->exit[dir] == NULL )
+    {
+        send_to_char("這個方向並不存在...\n\r", ch );
+        return;
+    }
+
+    del_exit( ch->in_room, dir );
+    top_exit--;
+    send_to_char("OK!\n\r",ch);
+}
+
+/* 線上載入區域檔案 */
+void do_loadarea( CHAR_DATA * ch, char *argument)
+{
+    char areafile[MAX_INPUT_LENGTH];
+    FILE *fp;
+
+
+    one_argument( argument, areafile );
+
+    if( areafile[0] == '\0')
+    {
+        send_to_char("格式: loadarea <areafile name>\n\r", ch);
+        return;
+    }
+    if( ( fp = fopen(areafile,"r") ) == NULL )
+    {
+        send_to_char("這個檔案不存在!\n\r", ch);
+        return;
+    }
+    if( load_area_file(ch, fp ) != FALSE )
+    {
+        send_to_char("載入成功\!!\n\r",ch);
+        return;
+    }
+    else
+    {
+        send_to_char("載入失敗!!\n\r", ch);
+        return;
+    }
+    fclose(fp);
+    send_to_char("OK!\n\r",ch);
+}
+
+void do_copyroom( CHAR_DATA * ch, char *argument)
+{
+    ROOM_INDEX_DATA *pRoomSource,*pRoomTarget;
+    char *pTarget;
+    char source[MAX_INPUT_LENGTH];
+    int  s_vnum,t_vnum;
+
+    pTarget = one_argument( argument, source );
+
+    if( source[0] == '\0' || pTarget[0] == NULL )
+    {
+        send_to_char("格式: copyroom <source vnum> <target vnum> \n\r", ch);
+        return;
+    }
+    if( !is_number(source) || !is_number(pTarget) )
+    {
+        send_to_char("格式: copyroom <source vnum> <target vnum> \n\r", ch);
+        return;
+    }
+    s_vnum = atoi(source);
+    t_vnum = atoi(pTarget);
+    if( ( pRoomSource = get_room_index( s_vnum ) ) == NULL )
+    {
+        send_to_char("來源房間並不存在.\n\r",ch);
+        return;
+    }
+    if( ( pRoomTarget = get_room_index( t_vnum ) ) == NULL )
+    {
+        do_addroom(ch, pTarget);
+        if( ( pRoomTarget = get_room_index( t_vnum) ) == NULL )
+        {
+            send_to_char("無法開啟目的房間.\n\r", ch);
+            return;
+        }
+    }
+    else
+    {
+        free_string(pRoomTarget->name);
+        free_string(pRoomTarget->description);
+    }
+    pRoomTarget->name = strdup(pRoomSource->name);
+    pRoomTarget->description = strdup(pRoomSource->description);
+    pRoomTarget->room_flags = pRoomSource->room_flags;
+    pRoomTarget->light = pRoomSource->light;
+    pRoomTarget->sector_type = pRoomSource->sector_type;
+    send_to_char("OK!\n\r",ch);
+    return;
+}
+
+
+
+
+--
+[1m※ 來源:•杏花村 bbs.ios.ncu.edu.tw•[FROM: s8227267@cycs03.ice.cycu.edu.tw] [m
+

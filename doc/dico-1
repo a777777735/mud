@@ -1,0 +1,170 @@
+以下有三個 functions: alloc_mem(), free_mem(), alloc_perm()
+原則上我不贊成在其他程式裡面使用 alloc_perm(), 建議全部改用
+alloc_mem() 比較恰當, 因為 alloc_mem() 會從被 free 掉的 free
+memory list 裡面找出合適的 block 回收使用。
+
+以下的程式如有 bug 歡迎指教...
+
+---- cut here ----
+/*---------------------------------------------------------------------------*
+ | memory.c --- Rewrited by Wyvern, Fix the free_mem() to be used without    |
+ |              size parameter, and check multiple free automatically.       |
+ *---------------------------------------------------------------------------*/
+#include<stdlib.h>
+#include<stdio.h>
+#include"../merc.h"
+
+/*
+ * Memory management.
+ * Increase MAX_STRING from 1500000 if you have too.
+ * Tune the others only if you understand what you're doing.
+ */
+#define			MAX_STRING      1500000
+
+#if defined( machintosh )
+#define			MAX_PERM_BLOCK  131072
+#define			MAX_MEM_LIST    11
+
+void *			rgFreeList              [ MAX_MEM_LIST       ];
+const int		rgSizeList              [ MAX_MEM_LIST       ]  =
+{
+    16, 32, 64, 128, 256, 1024, 2048, 4096, 8192, 16384, 32768-64
+};
+#else
+#define			MAX_PERM_BLOCK  131072
+#define			MAX_MEM_LIST    12
+
+void *			rgFreeList              [ MAX_MEM_LIST       ];
+const int		rgSizeList              [ MAX_MEM_LIST       ]  =
+{
+    16, 32, 64, 128, 256, 1024, 2048, 4096, 8192, 16384, 32768, 65536
+};
+#endif
+
+int			nAllocPerm;
+int			sAllocPerm;
+
+
+struct	mem_block	{
+	int	size;
+	int valid;
+	char memory[1];
+}	*MB;
+
+/*
+ * Allocate some ordinary memory,
+ *   with the expectation of freeing it someday.
+ */
+void *alloc_mem( int sMem )
+{
+    void *pMem;
+    int iList;
+
+	sMem += (int)MB->memory - (int)&(MB->size);
+	
+    for ( iList = 0; iList < MAX_MEM_LIST; iList++ )
+    {
+	if ( sMem <= rgSizeList[iList] )
+	    break;
+    }
+
+    if ( iList == MAX_MEM_LIST )
+    {
+	bug( "Alloc_mem: size %d too large.", sMem );
+	stop( 1 );
+    }
+
+    if ( !rgFreeList[iList] )
+    {
+	pMem		  = alloc_perm( rgSizeList[iList] );
+    }
+    else
+    {
+	pMem              = rgFreeList[iList];
+	rgFreeList[iList] = * ( (void **) rgFreeList[iList] );
+    }
+
+	MB = (struct mem_block *)pMem;
+	MB->size = sMem;
+	MB->valid = TRUE;
+    return (void *)MB->memory;
+}
+
+
+
+/*
+ * Free some memory.
+ * Recycle it back onto the free list for blocks of that size.
+ */
+void free_mem( void *pMem )
+{
+    int iList;
+    int sMem;
+
+	
+	MB = (struct mem_block *)(pMem - ((int)MB->memory - (int)&(MB->size)));
+	sMem = MB->size;
+	pMem = (void *)MB;
+
+	if ( !MB->valid )
+	{
+	bug( "Free_mem: it is freed already" );
+	abort( 1 );
+	}
+		
+    for ( iList = 0; iList < MAX_MEM_LIST; iList++ )
+    {
+	if ( sMem <= rgSizeList[iList] )
+	    break;
+    }
+
+    if ( iList == MAX_MEM_LIST )
+    {
+	bug( "Free_mem: size %d too large.", sMem );
+	stop( 1 );
+    }
+
+    * ( (void **) pMem ) = rgFreeList[iList];
+    rgFreeList[iList]  = pMem;
+	MB->valid = FALSE;	/* A Mark for checking whether it is freed again */
+
+    return;
+}
+
+
+
+/*
+ * Allocate some permanent memory.
+ * Permanent memory is never freed,
+ *   pointers into it may be copied safely.
+ */
+void *alloc_perm( int sMem )
+{
+           void *pMem;
+    static char *pMemPerm;
+    static int   iMemPerm;
+
+    while ( sMem % sizeof( long ) != 0 )
+	sMem++;
+    if ( sMem > MAX_PERM_BLOCK )
+    {
+	bug( "Alloc_perm: %d too large.", sMem );
+	stop( 1 );
+    }
+
+    if ( !pMemPerm || iMemPerm + sMem > MAX_PERM_BLOCK )
+    {
+	iMemPerm = 0;
+	if ( !( pMemPerm = calloc( 1, MAX_PERM_BLOCK ) ) )
+	{
+	    perror( "Alloc_perm" );
+	    stop( 1 );
+	}
+    }
+
+    pMem        = pMemPerm + iMemPerm;
+    iMemPerm   += sMem;
+    nAllocPerm += 1;
+    sAllocPerm += sMem;
+    return pMem;
+}

@@ -1,0 +1,31 @@
+標題: 如何在自己的帳號 compiler merc 或 envy mud!
+
+        以下針對 SunOS + gcc 的帳號, 當然 quota 要夠...ccc
+
+        首先要 ftp 一份 merc 或 envy 的壓縮檔
+        以 merc 為例, 叫 merc.tar.gz 好了
+
+        在你要建立的子目錄下鍵入(merc.tar.gz 要在那個目錄裡)
+
+        gzip -dc merc.tar.gz | tar -xvf -
+
+        然後就會有
+
+        Merc22/ 這個目錄出現
+
+        裡面有很多目錄, 到 Merc22/src 裡面有 Makefile
+        鍵入 make 就會開始 compile
+        然後就會在 Merc22/src 目錄下出現 merc* 這個可執行檔
+
+        到 Merc22/area 目錄下鍵入 ../src/merc 4000
+        就會把 merc 開在 4000 port
+        然後就可以 telnet 到 4000 port 進入你 compile 好的 merc 或 envy mud
+
+        另外一種執行 merc 且會自動 reboot 的方法是在 Merc22/src
+        執行 startup &
+        如果你沒有修改 startup 這個 shell script 的內容的話
+        會開在 1234 port
+
+        以上程序最容易出問題在 compile 中間
+        可能因為你的 OS 或 compiler 的設定不同有關...
+        詳細情形就不贅述了...
